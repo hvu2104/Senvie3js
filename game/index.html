@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Sen Quest · Hiểu Da Mình</title>
+<meta name="description" content="Tự đi tham quan booth Hiểu Da Mình, chơi 3 mini-game, mở 3 chìa khóa và leo bảng xếp hạng.">
+<meta property="og:title" content="Sen Quest · Hiểu Da Mình">
+<meta property="og:description" content="Chơi thử, mở 3 chìa khóa hiểu da và rủ bạn cùng leo bảng xếp hạng.">
+<style>
+@font-face { font-family: Later; src: url(assets/later.ttf); font-display: swap }
+@font-face { font-family: Float; src: url(assets/float.ttf); font-display: swap }
+:root {
+  --pink: #e91d78; --soft: #e4b5d2; --lime: #a8cf52; --yellow: #fcdc31; --ink: #1a1a1a; --paper: #fbfaf7; --white: #ffffff; --muted: #5b5357;
+  --good: #2f8f3a; --bad: #c62828;
+  --display: Later, "Arial Black", sans-serif; --label: Float, Arial, sans-serif; --body: Arial, Helvetica, sans-serif;
+}
+* { box-sizing: border-box }
+html, body { margin: 0; height: 100%; overflow: hidden; background: #eceae6; color: var(--ink); font: 16px/1.45 var(--body); -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none }
+canvas { display: block; touch-action: none }
+#world { position: fixed; inset: 0 }
+button { font: inherit; cursor: pointer }
+button:focus-visible, input:focus-visible { outline: 3px solid var(--pink); outline-offset: 2px }
+[hidden] { display: none !important }
+input { -webkit-user-select: text; user-select: text }
+
+.panel { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; overflow-y: auto;
+  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  background: #fbfaf7e6; background-image: linear-gradient(#00000009 1px, transparent 1px), linear-gradient(90deg, #00000009 1px, transparent 1px); background-size: 32px 32px }
+.card { width: min(520px, 100%); background: var(--white); border: 3px solid var(--ink); box-shadow: 6px 6px 0 var(--ink); padding: 24px 22px; display: flex; flex-direction: column; gap: 14px }
+h1 { margin: 0; font: 54px/1.12 var(--display); color: var(--pink); -webkit-text-stroke: 2px var(--ink); text-shadow: 4px 4px 0 var(--ink); text-wrap: balance }
+h2 { margin: 0; font: 30px/1.2 var(--display); color: var(--pink); -webkit-text-stroke: 1px var(--ink); text-wrap: balance }
+.kicker { font: 15px var(--label); letter-spacing: .04em }
+p { margin: 0 }
+.muted { color: var(--muted); font-size: 14px }
+.btn { border: 2.5px solid var(--ink); border-radius: 30px; padding: 12px 18px; background: var(--white); color: var(--ink); font: 18px var(--label); box-shadow: 3px 3px 0 var(--ink); text-align: center }
+.btn.primary { background: var(--pink); color: var(--white) }
+.btn:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink) }
+.row { display: flex; gap: 10px; flex-wrap: wrap }
+.row > .btn { flex: 1 1 120px }
+label { font: 15px var(--label); display: flex; flex-direction: column; gap: 6px }
+input { font: 17px var(--body); padding: 11px 12px; border: 2.5px solid var(--ink); background: var(--paper); width: 100% }
+.err { color: var(--bad); font-size: 14px; min-height: 1em }
+.banner { background: var(--yellow); border: 2.5px solid var(--ink); padding: 8px 12px; font: 15px var(--label) }
+.mascot { width: 110px; align-self: center; margin-bottom: -6px }
+.codebox { font: 34px var(--display); letter-spacing: .06em; text-align: center; background: var(--paper); border: 2.5px dashed var(--ink); padding: 8px; -webkit-user-select: all; user-select: all }
+.zonetag { border: 2.5px solid var(--ink); padding: 3px 12px; font: 15px var(--label) }
+.good { color: var(--good) } .bad { color: var(--bad) }
+
+/* HUD + controls over the 3D booth */
+#hud { position: fixed; left: 0; right: 0; top: 0; z-index: 10; pointer-events: none;
+  padding: calc(10px + env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) 0 max(12px, env(safe-area-inset-left)); display: flex; gap: 8px; align-items: center; flex-wrap: wrap }
+.chip { pointer-events: auto; background: var(--white); border: 2.5px solid var(--ink); box-shadow: 2px 2px 0 var(--ink); border-radius: 20px; padding: 6px 12px; font: 15px var(--label); font-variant-numeric: tabular-nums }
+.keys { display: flex; gap: 6px }
+.key { width: 34px; height: 34px; border-radius: 50%; border: 2.5px solid var(--ink); display: grid; place-items: center; font: 16px var(--display); background: var(--white); opacity: .45 }
+.key.on { opacity: 1 }
+#guide { display: flex; align-items: center; gap: 8px }
+#arrow { width: 26px; height: 26px; display: grid; place-items: center; font: 20px var(--display); color: var(--pink); transition: transform .1s linear }
+#bottom { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; pointer-events: none; display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding: 0 max(16px, env(safe-area-inset-right)) calc(16px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)) }
+#bottom > * { pointer-events: auto }
+#action { min-width: min(340px, 100%) }
+#hint { font-size: 13px; color: var(--muted); background: #ffffffd9; padding: 3px 10px; border-radius: 10px; text-align: center }
+#joy { position: fixed; z-index: 11; left: calc(22px + env(safe-area-inset-left)); bottom: calc(86px + env(safe-area-inset-bottom)); width: 128px; height: 128px; border-radius: 50%;
+  background: #ffffff99; border: 2.5px solid var(--ink); touch-action: none }
+#knob { position: absolute; left: 50%; top: 50%; width: 56px; height: 56px; margin: -28px 0 0 -28px; border-radius: 50%; background: var(--pink); border: 2.5px solid var(--ink); box-shadow: 2px 2px 0 var(--ink) }
+#joy .lbl { position: absolute; inset: auto 0 -22px; text-align: center; font: 12px var(--label); color: var(--muted) }
+
+/* mini-game frame */
+.panel.game { place-items: stretch; padding: calc(8px + env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left)) }
+.gwrap { width: min(560px, 100%); margin: 0 auto; height: 100%; display: flex; flex-direction: column; gap: 8px; background: var(--white); border: 3px solid var(--ink); box-shadow: 6px 6px 0 var(--ink); padding: 10px }
+.ghead { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: center } .gname { font: 18px var(--display); flex: 1 }
+.gstage { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px }
+.gcanvas { flex: 1; min-height: 0; width: 100%; border: 2.5px solid var(--ink); background: var(--paper) }
+.gcard { position: absolute; inset: 0; z-index: 2; display: flex; flex-direction: column; justify-content: center; gap: 14px; padding: 18px; background: #fffffff2; text-align: center }
+.rbtns .btn { font-size: 26px; padding: 8px }
+.swipe { flex: 1; display: flex; flex-direction: column; gap: 12px; justify-content: center; overflow: hidden }
+.scard { min-height: 230px; display: flex; flex-direction: column; justify-content: center; gap: 10px; padding: 24px; text-align: center; border: 3px solid var(--ink); box-shadow: 6px 6px 0 var(--ink);
+  background: var(--soft); font: bold 22px/1.35 var(--body); touch-action: none; cursor: grab }
+.scard[data-lean="yes"] { background: #dff3d6 } .scard[data-lean="no"] { background: #fde0e0 }
+.sfb { min-height: 66px; font-size: 15px; background: var(--paper); border-left: 6px solid var(--pink); padding: 8px 10px }
+.sbtns .btn { font-size: 20px }
+
+/* results + board */
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px }
+.stat { border: 2.5px solid var(--ink); padding: 8px; text-align: center } .stat b { display: block; font: 24px var(--display); font-variant-numeric: tabular-nums } .stat span { font-size: 12px; color: var(--muted) }
+table { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums }
+td, th { padding: 7px 6px; border-bottom: 1.5px solid #0002; text-align: left } th { font: 13px var(--label) } td.n, th.n { text-align: right }
+tr.me td { background: #fde3ef; font-weight: bold }
+.tablewrap { overflow-x: auto }
+@media (max-width: 420px) { h1 { font-size: 44px } .scard { font-size: 19px; min-height: 200px } }
+@media (prefers-reduced-motion: reduce) { .btn:active { transform: none } #arrow { transition: none } }
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js"}}</script>
+</head>
+<body>
+<div id="world"></div>
+
+<div id="hud" hidden>
+  <div class="keys" id="keys"></div>
+  <div class="chip" id="timer">00:00</div>
+  <div class="chip" id="score">0 điểm</div>
+  <div class="chip" id="guide"><span id="arrow">▲</span><span id="goal"></span></div>
+  <button class="chip" id="hudBoard" type="button">Xếp hạng</button>
+</div>
+<div id="joy" hidden aria-hidden="true"><div id="knob"></div><div class="lbl">Kéo để đi</div></div>
+<div id="bottom" hidden>
+  <button class="btn primary" id="action" type="button" hidden></button>
+  <div id="hint"></div>
+</div>
+
+<section class="panel" id="pLoading"><div class="card"><h2>Đang dựng booth…</h2><p class="muted">Lần đầu mở có thể mất vài giây.</p></div></section>
+
+<section class="panel" id="pHome" hidden>
+  <div class="card">
+    <img class="mascot" src="assets/mascot.png" alt="Bé Sen">
+    <div class="kicker">HIỂU DA MÌNH · SENVIELAB</div>
+    <h1>SEN QUEST</h1>
+    <p>Tự đi tham quan booth, chơi <b>3 mini-game</b> ở 3 chặng Nhận ra · Thấu hiểu · Duy trì để mở <b>3 chìa khóa</b> và leo bảng xếp hạng.</p>
+    <div class="banner" id="refBanner" hidden></div>
+    <p class="muted" id="welcome" hidden></p>
+    <div class="row">
+      <button class="btn primary" id="bPlay" type="button">Chơi ngay</button>
+      <button class="btn" id="bBoard" type="button">Bảng xếp hạng</button>
+    </div>
+    <button class="btn" id="bRules" type="button">Luật chơi & tính điểm</button>
+    <p class="muted" id="modeNote"></p>
+  </div>
+</section>
+
+<section class="panel" id="pRules" hidden>
+  <div class="card">
+    <h2>LUẬT CHƠI</h2>
+    <p><b>Di chuyển:</b> máy tính dùng phím mũi tên (↑↓ đi, ←→ xoay), kéo chuột để nhìn. Điện thoại dùng núm tròn góc trái để đi, kéo màn hình để nhìn.</p>
+    <p><b>3 chặng:</b> đi tới khu số 1, 2, 3 theo thứ tự (mũi tên trên cùng chỉ đường). Mỗi khu có một mini-game, chơi xong nhận một chìa khóa. Đủ 3 chìa thì tới Hộp thư bé Sen nộp điểm.</p>
+    <p><b>Điểm:</b> mỗi hành động đúng <b>+10</b>. Tính lượt chơi tốt nhất; bằng điểm thì ai nhanh hơn xếp trên.</p>
+    <p><b>Mời bạn:</b> mỗi bạn đăng ký bằng mã của bạn và chơi hết một lượt: <b>+5 điểm</b>, không giới hạn. Top 10 nhận quà.</p>
+    <p class="muted">Nội dung chỉ mang tính tham khảo. Nếu da có vấn đề, hãy hỏi bác sĩ da liễu.</p>
+    <button class="btn primary" data-back type="button">Đã hiểu</button>
+  </div>
+</section>
+
+<section class="panel" id="pRegister" hidden>
+  <form class="card" id="fRegister" novalidate>
+    <h2>TẠO MÃ NGƯỜI CHƠI</h2>
+    <p class="muted">Không cần tên thật. Mã dùng để lưu điểm và để bạn bè nhập khi được bạn mời.</p>
+    <label for="iNick">Biệt danh (hiện trên bảng xếp hạng)<input id="iNick" maxlength="20" autocomplete="off" placeholder="VD: Sen Vàng 07"></label>
+    <label for="iSchool">Trường (không bắt buộc)<input id="iSchool" maxlength="40" autocomplete="off" placeholder="VD: THCS …"></label>
+    <label for="iRef">Mã người mời (nếu có)<input id="iRef" maxlength="9" autocomplete="off" placeholder="SEN-XXXXX"></label>
+    <div class="err" id="regErr"></div>
+    <button class="btn primary" type="submit" id="bRegister">Tạo mã & chơi</button>
+    <button class="btn" type="button" id="bHaveCode">Mình đã có mã</button>
+  </form>
+  <form class="card" id="fLogin" novalidate hidden>
+    <h2>NHẬP MÃ CỦA BẠN</h2>
+    <label for="iCode">Mã người chơi<input id="iCode" maxlength="9" autocomplete="off" placeholder="SEN-XXXXX"></label>
+    <div class="err" id="logErr"></div>
+    <button class="btn primary" type="submit">Tiếp tục</button>
+    <button class="btn" type="button" id="bNewCode">Tạo mã mới</button>
+  </form>
+</section>
+
+<section class="panel" id="pIntro" hidden>
+  <div class="card">
+    <div class="kicker">MÃ CỦA BẠN</div>
+    <div class="codebox" id="introCode"></div>
+    <p class="muted">Ghi nhớ mã này để chơi tiếp trên máy khác và để mời bạn bè.</p>
+    <p id="ctlHelp"></p>
+    <p>Thời gian bắt đầu tính khi bạn bấm <b>Vào booth</b>.</p>
+    <button class="btn primary" id="bEnter" type="button">Vào booth</button>
+  </div>
+</section>
+
+<section class="panel game" id="pGame" hidden><div class="gwrap" id="gRoot"></div></section>
+
+<section class="panel" id="pResult" hidden>
+  <div class="card">
+    <div class="kicker">ĐÃ MỞ ĐỦ 3 CHÌA · HỘP THƯ BÉ SEN</div>
+    <h2 id="rTitle"></h2>
+    <div class="stats">
+      <div class="stat"><b id="rScore"></b><span>điểm lượt này</span></div>
+      <div class="stat"><b id="rTime"></b><span>thời gian</span></div>
+      <div class="stat"><b id="rRank"></b><span>hạng hiện tại</span></div>
+    </div>
+    <p class="muted" id="rSplit"></p>
+    <p id="rTotal"></p>
+    <div class="banner">Rủ bạn chơi: mỗi bạn đăng ký bằng mã của bạn và chơi xong <b>+5 điểm</b>.</div>
+    <div class="codebox" id="rCode"></div>
+    <div class="row">
+      <button class="btn primary" id="bShare" type="button">Chia sẻ link mời</button>
+      <button class="btn" id="bAgain" type="button">Chơi lại</button>
+    </div>
+    <input id="shareLink" readonly aria-label="Link mời" hidden>
+    <div class="muted" id="shareMsg" aria-live="polite"></div>
+    <button class="btn" id="rBoard" type="button">Xem bảng xếp hạng</button>
+  </div>
+</section>
+
+<section class="panel" id="pBoard" hidden>
+  <div class="card">
+    <h2>TOP 10</h2>
+    <p class="muted" id="bNote"></p>
+    <div class="tablewrap"><table><thead><tr><th>#</th><th>Người chơi</th><th class="n">Điểm</th><th class="n">Thời gian</th></tr></thead><tbody id="bRows"></tbody></table></div>
+    <p id="bMe"></p>
+    <button class="btn primary" data-back type="button">Quay lại</button>
+  </div>
+</section>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>
