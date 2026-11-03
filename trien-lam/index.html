@@ -26,13 +26,16 @@ canvas{display:block}
 .card .v{margin-top:8px;padding-top:8px;border-top:1px solid #EED3E0;font-size:13px;opacity:.8}
 .hint{position:fixed;left:20px;bottom:76px;font-size:12px;opacity:.6;pointer-events:none}
 .dui{position:fixed;left:20px;top:110px;width:300px;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-radius:20px;padding:16px 20px;display:none}
-.dui .k{font:600 11px 'Be Vietnam Pro';letter-spacing:.16em;text-transform:uppercase;color:var(--xm)}
-.dui .age{font:700 54px/1 Gwendolyn;color:var(--xm);margin:4px 0 6px}
-.dui input{width:100%;accent-color:#3A5F9E}
-.dui .row{display:grid;grid-template-columns:70px 1fr;align-items:center;gap:8px;font-size:13px;margin-top:6px}
-.dui .tr{height:10px;border-radius:9px;background:#EEF3FA;overflow:hidden}.dui .tr i{display:block;height:100%;border-radius:9px;transition:width .5s}
-.dui .n{font:italic 400 15px/1.4 'Playfair Display';margin-top:10px}
-.dui .s{font-size:11px;opacity:.6;margin-top:6px}
+.dui .k{font:600 11px 'Be Vietnam Pro';letter-spacing:.16em;text-transform:uppercase;color:var(--hm)}
+.dui .q{font:italic 400 16px 'Playfair Display';margin:4px 0 8px}
+.dui .chips{display:flex;flex-wrap:wrap;gap:6px}
+.dui .chips button,.dui .spin{border:0;border-radius:99px;padding:6px 14px;font:600 13px 'Be Vietnam Pro';background:#F7DCE8;color:var(--ink);cursor:pointer}
+.dui .chips button.on{background:var(--hm);color:#fff}
+.dui .age{font:700 34px/1.05 Gwendolyn;color:var(--hm);margin:12px 0 4px}
+.dui ul{margin:0;padding-left:18px;font-size:13px}
+.dui .spin{width:100%;margin-top:10px;background:var(--ink);color:#fff;padding:9px}.dui .spin:disabled{opacity:.4}
+.dui .gift{display:flex;gap:12px;align-items:center;margin-top:10px;padding:10px 12px;border-radius:14px;background:#FFF4E9;font-size:13px}.dui .gift b{font:700 26px Gwendolyn;color:var(--hm)}.dui .gift span{opacity:.7}.dui .gift canvas{width:64px;height:64px;flex:none}
+.dui .s{font-size:11px;opacity:.6;margin-top:8px}
 @media (max-width:760px){.card{left:16px;right:16px;width:auto;top:auto;bottom:76px;padding:12px 16px;font-size:13px}.card h2{font-size:32px}.card ul{display:none}.top h1{font-size:38px}.top p{font-size:12px}.hint{display:none}.bar{left:16px;right:16px;transform:none;max-width:none}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.1/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.1/examples/jsm/"}}</script>
@@ -41,10 +44,8 @@ canvas{display:block}
 <div class="top"><h1>Giải mã làn da</h1><p>Mô phỏng giả định · phòng 40 × 24 m, cao 6 m · 1 cửa vào, 1 cửa ra</p></div>
 <div class="card" id="card"></div>
 <div class="bar" id="bar"></div>
-<div class="hint">Kéo để xoay · cuộn để zoom · chuột phải để di chuyển · bấm vào bàn xoay để thử</div>
-<div class="dui" id="dui"><div class="k">Bàn xoay hormone · thử xoay</div><div class="age" id="dage">9 tuổi</div><input type="range" id="drange" min="9" max="18" step="1" value="9" aria-label="Tuổi">
-<div class="row">Dầu<div class="tr"><i id="b0" style="background:#E9C46A"></i></div></div><div class="row">Mụn<div class="tr"><i id="b1" style="background:#D48698"></i></div></div><div class="row">Nhạy cảm<div class="tr"><i id="b2" style="background:#7BA1E2"></i></div></div>
-<div class="n" id="dnote"></div><div class="s">Số liệu minh hoạ, cần chuyên gia duyệt nội dung thật.</div></div>
+<div class="hint">Kéo để xoay · cuộn để zoom · chuột phải để di chuyển · bấm vào máy Hỏi bé Sen để thử</div>
+<div class="dui" id="dui"></div>
 <script type="module">
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -52,7 +53,7 @@ const MASCOT = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAdkAAAKNCAYAAABssB
 
 await Promise.all(['500 40px "Be Vietnam Pro"', '600 40px "Be Vietnam Pro"', '700 40px Gwendolyn', 'italic 400 40px "Playfair Display"'].map(f => document.fonts.load(f, 'Aa ỗểụờậắữ')));
 
-const C = { pink:0xEED3E0, sky:0xA4C4E5, lav:0xCBCDE7, blush:0xEAB8C6, rose:0xD48698, pop:0x7BA1E2, leaf:0x8DB36B, ink:0x4A3550, hm:0x9E3F5A, xm:0x3A5F9E, cream:0xFFF7F1, cloud:0xFDFBFC, wood:0xE9D8C8 };
+const C = { pink:0xF7DCE8, sky:0xA9BBD0, lav:0xB9B0C9, blush:0xE8BFCB, rose:0xE99ABD, pop:0x7BA1E2, leaf:0x9EB494, peach:0xF2D2C1, cotton:0xF3B9D2, ink:0x4A3550, hm:0x9E3F5A, xm:0x3A5F9E, cream:0xFFF4E9, cloud:0xFDFBFC, wood:0xE9D8C8 };
 const W = 40, D = 24, H = 6;
 
 // ---------- renderer / scene ----------
@@ -195,9 +196,9 @@ const doorL = -15, doorR = 15, dw = 3;
 
 // zone rugs
 const rug = (x0, x1, z0, z1, c) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(x1 - x0, z1 - z0), mat(c)); m.rotation.x = -Math.PI / 2; m.position.set((x0 + x1) / 2, .01, (z0 + z1) / 2); m.receiveShadow = true; scene.add(m); };
-rug(-19.6, -7.5, -11.6, 1, C.lav);
-rug(-7, 7, -11.6, -2.5, 0xC9DBEF);
-rug(7.5, 19.6, -11.6, 1, C.pink);
+rug(-19.6, -7.5, -11.6, 1, C.sky);
+rug(-7, 7, -11.6, -2.5, C.blush);
+rug(7.5, 19.6, -11.6, 1, C.cotton);
 rug(-19.6, -10, 3, 11.6, 0xF3E9EF);
 rug(10, 19.6, 3, 11.6, 0xF3E9EF);
 rug(-6.5, 6.5, 1, 10.5, 0xFBF6F0);
@@ -213,7 +214,7 @@ const zones = {};
 // CHECK-IN
 box(.8, 1.05, 4, C.cream, -12.4, .52, 8); box(.9, .06, 4.1, C.blush, -12.4, 1.07, 8);
 for (let i = 0; i < 5; i++) box(.42, .04, .3, [C.pink, C.sky, C.lav][i % 3], -12.5, 1.12, 6.6 + i * .7);
-panel(4, 1.2, (g, w, h) => { g.fillStyle = '#EED3E0'; g.fillRect(0, 0, w, h); g.fillStyle = '#9E3F5A'; g.font = '700 110px Gwendolyn'; g.textAlign = 'center'; g.fillText('Nhận lưu bút', w / 2, 120); }, -11.95, 2.2, 8, -Math.PI / 2);
+panel(4, 1.2, (g, w, h) => { g.fillStyle = '#EED3E0'; g.fillRect(0, 0, w, h); g.fillStyle = '#9E3F5A'; g.font = '700 110px Gwendolyn'; g.textAlign = 'center'; g.fillText('Nhận Dear Skin', w / 2, 120); }, -11.95, 2.2, 8, -Math.PI / 2);
 new THREE.TextureLoader().load(MASCOT, (t) => {
   t.colorSpace = THREE.SRGBColorSpace;
   const m = new THREE.Mesh(new THREE.PlaneGeometry(1.45, 2), new THREE.MeshStandardMaterial({ map: t, transparent: true, alphaTest: .4, side: THREE.DoubleSide }));
@@ -224,13 +225,13 @@ new THREE.TextureLoader().load(MASCOT, (t) => {
 box(.7, 1.1, .5, C.cream, -17.6, .55, 5.2); box(.8, .05, .6, C.sky, -17.6, 1.12, 5.2);
 for (let i = 0; i < 3; i++) box(.26, .02, .36, C.cloud, -17.85 + i * .25, 1.16, 5.2);
 label('Form phụ huynh ký', -17.6, 1.9, 5.2, { size: .8 });
-zones.checkin = { k: 'Bước 1', t: 'Check-in', e: 'Tò mò, còn ngại', l: ['Nhận phiếu check-in và cuốn lưu bút', 'Bạn dưới 16 tuổi: phụ huynh ký form đồng ý', 'Chào bé Sen rồi vào Zone 1'], cam: [-11.2, 4.6, 11.4], tgt: [-16.4, 1, 5.6] };
+zones.checkin = { k: 'Bước 1', t: 'Check-in', e: 'Tò mò, còn ngại', l: ['Nhận phiếu check-in và nhật ký Dear Skin', 'Bạn dưới 16 tuổi: phụ huynh ký form đồng ý', 'Chào bé Sen rồi vào Zone 1'], cam: [-11.2, 4.6, 11.4], tgt: [-16.4, 1, 5.6] };
 
 // ZONE 1 · Nỗi sợ
 const feel = ['Hoang mang', 'Lo lắng', 'Tự ti', 'Bối rối'];
 feel.forEach((f, i) => {
   box(2.3, 1.5, .1, 0x3A3346, -17.8 + i * 2.8, 2.4, -11.4);
-  panel(2.15, 1.35, (g, w, h) => { const gr = g.createLinearGradient(0, 0, w, h); gr.addColorStop(0, '#CBCDE7'); gr.addColorStop(1, '#A4C4E5'); g.fillStyle = gr; g.fillRect(0, 0, w, h); g.fillStyle = '#4A3550'; g.font = 'italic 400 56px "Playfair Display"'; g.textAlign = 'center'; g.fillText(f, w / 2, h / 2 + 18);
+  panel(2.15, 1.35, (g, w, h) => { const gr = g.createLinearGradient(0, 0, w, h); gr.addColorStop(0, '#B9B0C9'); gr.addColorStop(1, '#A9BBD0'); g.fillStyle = gr; g.fillRect(0, 0, w, h); g.fillStyle = '#4A3550'; g.font = 'italic 400 56px "Playfair Display"'; g.textAlign = 'center'; g.fillText(f, w / 2, h / 2 + 18);
     if (i % 2) { g.fillStyle = '#FDFBFC'; g.beginPath(); g.moveTo(w - 70, 30); g.lineTo(w - 70, 80); g.lineTo(w - 30, 55); g.fill(); } // video screen
   }, -17.8 + i * 2.8, 2.4, -11.33);
 });
@@ -239,47 +240,59 @@ box(.12, 2.6, 4.6, C.cloud, -18.8, 1.3, -4.2);
 panel(4.4, 2.4, (g, w, h) => {
   g.fillStyle = '#FDFBFC'; g.fillRect(0, 0, w, h);
   g.fillStyle = '#9E3F5A'; g.font = '700 56px Gwendolyn'; g.fillText('Bạn thấy lo lắng khi…', 30, 84);
-  ['mụn đầu đen', 'lỗ chân lông to', 'mặt rửa mãi không sạch', 'da đổ dầu'].forEach((s, i) => { g.fillStyle = ['#EAB8C6', '#A4C4E5', '#CBCDE7', '#EED3E0'][i]; rr(g, 14 + (i % 2) * 248, 130 + Math.floor(i / 2) * 64, 238, 50, 25); g.fill(); g.fillStyle = '#4A3550'; g.font = '500 17px "Be Vietnam Pro"'; g.fillText(s, 30 + (i % 2) * 248, 162 + Math.floor(i / 2) * 64); });
-  for (let i = 0; i < 26; i++) { g.fillStyle = ['#EAB8C6', '#A4C4E5', '#CBCDE7', '#D48698'][i % 4]; g.beginPath(); g.arc(30 + (i * 97) % 460, 290 + (i * 53) % 40, 10, 0, 7); g.fill(); }
+  ['mụn đầu đen', 'lỗ chân lông to', 'mặt rửa mãi không sạch', 'da đổ dầu'].forEach((s, i) => { g.fillStyle = ['#E8BFCB', '#A9BBD0', '#D6D5DA', '#C7A8B5'][i]; rr(g, 14 + (i % 2) * 248, 130 + Math.floor(i / 2) * 64, 238, 50, 25); g.fill(); g.fillStyle = '#4A3550'; g.font = '500 17px "Be Vietnam Pro"'; g.fillText(s, 30 + (i % 2) * 248, 162 + Math.floor(i / 2) * 64); });
+  for (let i = 0; i < 26; i++) { g.fillStyle = ['#E8BFCB', '#A9BBD0', '#B9B0C9', '#E99ABD'][i % 4]; g.beginPath(); g.arc(30 + (i * 97) % 460, 290 + (i * 53) % 40, 10, 0, 7); g.fill(); }
 }, -18.72, 1.4, -4.2, Math.PI / 2);
 label('Lắng nghe lắng lo', -17.8, 3.2, -4.2);
 lotus(0, -11.5, -4.6, 1.1);
-archSign('01', 'Nỗi sợ', 'Bạn thấy lo lắng khi…', '#CBCDE7', '#9E3F5A', -17.2, 2.4, 0);
+archSign('01', 'Nỗi sợ', 'Bạn thấy lo lắng khi…', '#A9BBD0', '#9E3F5A', -17.2, 2.4, 0);
 bigLabel('Nỗi sợ', -13.5, 7.2, -6, '#9E3F5A');
 const z1light = new THREE.PointLight(0xFFD9B8, 18, 14, 1.6); z1light.position.set(-13.5, 4, -5); scene.add(z1light);
-// quiet seating corner
-[[-12.5, -1.2, C.lav], [-11.6, -1.7, C.blush], [-13.4, -1.8, C.sky]].forEach(([x, z, c]) => cyl(.4, .42, .25, c, x, .13, z, 24));
-label('Góc ngồi', -12.5, 1.3, -1.5, { size: .8 });
-zones.z1 = { k: 'Zone 1', t: 'Nỗi sợ', e: 'Ngại ngùng → Được đồng cảm', l: ['Tường cảm xúc: ảnh và video về hoang mang, lo sợ khi da thay đổi', 'Lắng nghe lắng lo: đọc "Bạn thấy lo lắng khi…" rồi chọn: mụn đầu đen, lỗ chân lông to, mặt rửa mãi không sạch…', 'Góc ngồi: đệm thấp, đèn ấm. Mây dày, sen còn là nụ'], v: 'Teen thấy mình không đơn độc, nói ra lo lắng mà không bị phán xét.', cam: [-7, 7, 4], tgt: [-14, 1.2, -6] };
+// photobooth "Soi chiếu": backdrop on the partition, ring light facing it
+const pbTex = canvasTex(600, 760, (g, w, h) => {
+  g.fillStyle = '#A9BBD0'; g.beginPath(); g.moveTo(0, h); g.lineTo(0, w / 2); g.arc(w / 2, w / 2, w / 2, Math.PI, 0); g.lineTo(w, h); g.fill();
+  g.fillStyle = '#FDFBFC'; [[90, 640, 90], [210, 680, 80], [400, 660, 100], [530, 620, 80]].forEach(([x, y, r]) => { g.beginPath(); g.arc(x, y, r, 0, 7); g.fill(); }); g.fillRect(0, 680, w, 80);
+  g.fillStyle = '#9E3F5A'; g.textAlign = 'center'; g.font = '700 110px Gwendolyn'; g.fillText('Soi chiếu', w / 2, 250);
+  g.fillStyle = '#4A3550'; g.font = 'italic 400 34px "Playfair Display"'; g.fillText('làn da mình lúc này', w / 2, 320);
+});
+// two one-sided planes so the text reads correctly from inside the zone and from the lounge
+[[1.59, Math.PI], [1.61, 0]].forEach(([z, ry]) => { const pb = new THREE.Mesh(new THREE.PlaneGeometry(3, 3.8), new THREE.MeshStandardMaterial({ map: pbTex, transparent: true, alphaTest: .5 })); pb.position.set(-11.2, 1.9, z); pb.rotation.y = ry; scene.add(pb); });
+cyl(.03, .03, 1.6, C.ink, -11.2, .8, -1.4, 8); const ringL = new THREE.Mesh(new THREE.TorusGeometry(.35, .04, 8, 32), mat(0xffffff, { emissive: 0xffffff, emissiveIntensity: .8 })); ringL.position.set(-11.2, 1.75, -1.4); scene.add(ringL);
+label('Photobooth', -11.2, 4.1, 1.2, { size: .8 });
+zones.z1 = { k: 'Zone 1', t: 'Nỗi sợ', e: 'Ngại ngùng → Được đồng cảm', l: ['Tường cảm xúc: ảnh và video về hoang mang, lo sợ khi da thay đổi', 'Lắng nghe lắng lo: đọc "Bạn thấy lo lắng khi…" rồi chọn: mụn đầu đen, lỗ chân lông to, mặt rửa mãi không sạch…', 'Photobooth Soi chiếu: dừng lại, nhìn mình lúc này, chụp một tấm', 'Bé Sen dán nhiều miếng dán sao, tim, tròn. Mây dày, nền xanh sương'], v: 'Teen thấy mình không đơn độc, nói ra lo lắng mà không bị phán xét.', cam: [-6.4, 7.6, 6], tgt: [-13.6, 1.2, -5] };
 
 // ZONE 2 · Hiểu da
 for (let i = 0; i < 6; i++) panel(1.7, 2.1, (g, w, h) => {
-  g.fillStyle = '#fff'; g.fillRect(0, 0, w, h); g.fillStyle = '#3A5F9E'; g.font = '600 120px "Be Vietnam Pro"'; g.fillText('#0' + (i + 1), 34, 150);
+  g.fillStyle = '#fff'; g.fillRect(0, 0, w, h); g.fillStyle = '#9E3F5A'; g.font = '600 120px "Be Vietnam Pro"'; g.fillText('#0' + (i + 1), 34, 150);
   g.fillStyle = '#4A3550'; g.font = 'italic 400 38px "Playfair Display"'; ['Sự thật', 'về làn da', 'tuổi dậy thì'].forEach((s, j) => g.fillText(s, 36, 260 + j * 50));
-  g.fillStyle = '#A4C4E5'; g.beginPath(); g.arc(w - 90, 110, 40, 0, 7); g.fill();
+  g.fillStyle = '#E8BFCB'; g.beginPath(); g.arc(w - 90, 110, 40, 0, 7); g.fill();
 }, -5.4 + i * 2.15, 2.1, -11.33);
 label('Tường sự thật', 0, 3.9, -11);
 // MBTI kiosk
-box(1.2, 1.1, .7, C.cloud, -2.6, .55, -4.6); const scr = box(1.1, .75, .06, 0x3A5F9E, -2.6, 1.5, -4.85); scr.rotation.x = -.3;
+box(1.2, 1.1, .7, C.cloud, -2.6, .55, -4.6); const scr = box(1.1, .75, .06, C.ink, -2.6, 1.5, -4.85); scr.rotation.x = -.3;
 label('Skincare MBTI', -2.6, 2.6, -4.6);
-// hormone dial table
-cyl(1.3, 1.3, .1, C.cream, 2.2, .95, -6.2); cyl(.2, .35, .9, C.cream, 2.2, .45, -6.2);
-const dialTex = canvasTex(512, 512, (g, w) => { g.fillStyle = '#A4C4E5'; g.beginPath(); g.arc(w / 2, w / 2, w / 2 - 4, 0, 7); g.fill(); g.fillStyle = '#4A3550'; g.font = '600 34px "Be Vietnam Pro"'; g.textAlign = 'center'; for (let a = 9; a <= 18; a++) { const t = (a - 9) / 10 * Math.PI * 2; g.fillText(a, w / 2 + Math.sin(t) * 200, w / 2 - Math.cos(t) * 200 + 12); } g.fillStyle = '#FDFBFC'; g.beginPath(); g.arc(w / 2, w / 2, 110, 0, 7); g.fill(); });
-const dial = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, .06, 48), [mat(C.sky), new THREE.MeshStandardMaterial({ map: dialTex }), mat(C.sky)]);
-dial.position.set(2.2, 1.04, -6.2); dial.rotation.y = Math.PI / 2; scene.add(dial); // 9 at the far edge, numbers read from the aisle side
-// needle: age a sits at angle (a-9)/10 of a turn, clockwise seen from above
-const needle = new THREE.Group(); needle.position.set(2.2, 1.09, -6.2); needle.rotation.y = Math.PI / 2; scene.add(needle);
-const nd = new THREE.Mesh(new THREE.BoxGeometry(.62, .03, .07), mat(C.hm)); nd.position.x = .31; needle.add(nd);
-const hub = new THREE.Mesh(new THREE.CylinderGeometry(.12, .12, .06, 20), mat(C.hm)); needle.add(hub);
-const dialLabel = label('Bàn xoay hormone', 2.2, 2.4, -6.2);
+// Hỏi bé Sen kiosk: screen with the four skin options, facing the aisle
+box(.9, 1.0, .5, C.cloud, 1.4, .5, -6.2);
+const kiosk = panel(1.5, 1.05, (g, w, h) => {
+  g.fillStyle = '#FFF4E9'; g.fillRect(0, 0, w, h); g.fillStyle = '#9E3F5A'; g.font = '700 74px Gwendolyn'; g.textAlign = 'center'; g.fillText('Da bạn thế nào?', w / 2, 92);
+  ['Dầu', 'Mụn', 'Khô', 'Kích ứng'].forEach((t, i) => { const x = 40 + (i % 2) * 222, y = 140 + Math.floor(i / 2) * 92; g.fillStyle = i < 2 ? '#9E3F5A' : '#E8BFCB'; rr(g, x, y, 206, 72, 36); g.fill(); g.fillStyle = i < 2 ? '#fff' : '#4A3550'; g.font = '600 32px "Be Vietnam Pro"'; g.fillText(t, x + 103, y + 47); });
+}, 1.4, 1.55, -5.94);
+kiosk.rotation.x = -.18;
+// gacha machine: base, glass globe with capsules, chute
+box(.8, .9, .7, C.rose, 3.2, .45, -6.2); box(.24, .2, .06, C.ink, 3.2, .42, -5.84);
+const globe = new THREE.Group(); globe.position.set(3.2, 1.32, -6.2); scene.add(globe);
+globe.add(new THREE.Mesh(new THREE.SphereGeometry(.42, 32, 20), new THREE.MeshStandardMaterial({ color: 0xffffff, transparent: true, opacity: .28, roughness: .1 })));
+for (let i = 0; i < 14; i++) { const b = new THREE.Mesh(new THREE.SphereGeometry(.09, 12, 8), mat([C.blush, C.sky, C.pink, C.cotton, C.peach][i % 5])); b.position.set(Math.sin(i * 2.4) * .24, -.2 + (i % 4) * .1, Math.cos(i * 2.4) * .24); globe.add(b); }
+cyl(.2, .2, .1, C.hm, 3.2, 1.78, -6.2, 24);
+const dialLabel = label('Hỏi bé Sen · Gacha', 2.3, 2.5, -6.2);
 // assurance rack
 box(1.6, 1.4, .3, C.pink, 2.8, .7, -2.9);
 for (let i = 0; i < 8; i++) box(.32, .44, .03, C.cloud, 2.35 + (i % 4) * .3, 1.12 - Math.floor(i / 4) * .5, -2.73);
 label('Pick an assurance', 2.8, 2.2, -2.9);
 lotus(1, -5.6, -10.2, 1.1);
-archSign('02', 'Hiểu da', 'Đọc vị làn da của mình', '#A4C4E5', '#3A5F9E', -6.5, -3.8, -Math.PI / 2);
-bigLabel('Hiểu da', 0, 7.2, -7, '#3A5F9E');
-zones.z2 = { k: 'Zone 2', t: 'Hiểu da', e: 'Được đồng cảm → Hiểu', l: ['Tường sự thật: sau mỗi dấu hiệu (mụn, bã nhờn…) là một thay đổi sinh lý', 'Skincare MBTI: nhiều mẫu mã, nhưng mỗi thành phần chỉ giải quyết vài vấn đề nhất định', 'Bàn xoay hormone: xoay 9 → 18 tuổi, xem dầu, mụn, độ nhạy cảm thay đổi', 'Pick an assurance: mỗi vấn đề một lời an ủi mang về'], v: 'Hiểu da mình, biết cơ bản về sản phẩm đang có trên thị trường.', cam: [0, 7, 3], tgt: [0, 1, -7] };
+archSign('02', 'Hiểu da', 'Đọc vị làn da của mình', '#E8BFCB', '#9E3F5A', -6.5, -3.8, -Math.PI / 2);
+bigLabel('Hiểu da', 0, 7.2, -7, '#9E3F5A');
+zones.z2 = { k: 'Zone 2', t: 'Hiểu da', e: 'Được đồng cảm → Hiểu', l: ['Tường sự thật: sau mỗi dấu hiệu (mụn, bã nhờn…) là một thay đổi sinh lý', 'Skincare MBTI: nhiều mẫu mã, nhưng mỗi thành phần chỉ giải quyết vài vấn đề nhất định', 'Hỏi bé Sen: chọn dầu, mụn, khô, kích ứng, nhận lời khuyên ăn, ngủ, chăm da', 'Gacha: quay ra số phần quà (ít nhất 1), nhận QR để đổi ở check-out', 'Pick an assurance: mỗi vấn đề một lời an ủi mang về'], v: 'Hiểu da mình, biết cơ bản về sản phẩm đang có trên thị trường.', cam: [0, 7, 3], tgt: [0, 1, -7] };
 
 // ZONE 3 · Hiểu mình
 [-9, -5].forEach((z) => {
@@ -299,53 +312,53 @@ box(.8, 1.1, .6, C.cloud, 12.5, .55, -2.4); const scan = box(.9, .7, .05, C.xm, 
 cyl(.22, .22, .45, C.blush, 12.5, .23, -1.4, 20);
 label('Soi da', 12.5, 2.4, -2.4);
 box(1.6, .06, .7, C.wood, 18.4, .76, -1.6); box(.06, .74, .6, C.wood, 17.7, .37, -1.6); box(.06, .74, .6, C.wood, 19.1, .37, -1.6);
-const mail = box(.7, 1.2, .6, C.rose, 18.4, .6, .2); box(.4, .04, .1, C.ink, 18.4, 1.0, -.1);
-label('Letter to your skin', 18.4, 2.2, -.8);
+for (let i = 0; i < 3; i++) box(.3, .04, .4, [C.cotton, C.pink, C.lav][i], 17.9 + i * .5, .8, -1.6);
+label('Viết Dear Skin', 18.4, 2.2, -1.6);
 lotus(2, 17.6, -9.6, 1.15);
-archSign('03', 'Hiểu mình', 'Chắp bút cho hành trình', '#EAB8C6', '#9E3F5A', 7.8, -3.8, -Math.PI / 2);
+archSign('03', 'Hiểu mình', 'Chắp bút cho hành trình', '#F3B9D2', '#9E3F5A', 7.8, -3.8, -Math.PI / 2);
 bigLabel('Hiểu mình', 13.5, 7.2, -6, '#9E3F5A');
 const z3light = new THREE.PointLight(0xFFE6E0, 28, 16, 1.4); z3light.position.set(13.5, 4.2, -5); scene.add(z3light);
-zones.z3 = { k: 'Zone 3', t: 'Hiểu mình', e: 'Hiểu → Biết mình cần làm gì', l: ['Workshop Build your diet, build your skin: bàn 1 lên routine chăm da, bàn 2 lên chế độ ăn hợp với da mình', 'Soi da: xem tình trạng da trước khi lên routine', 'Letter to your skin: viết lời nhắn cho da, bỏ vào hòm thư', 'Sáng và ấm nhất. Sen nở trọn'], v: 'Biết mình cần làm gì khi da thay đổi, dùng luôn kiến thức ở Zone 2.', cam: [10.4, 7.6, 4.8], tgt: [15.4, 1, -5.2] };
+zones.z3 = { k: 'Zone 3', t: 'Hiểu mình', e: 'Hiểu → Biết mình cần làm gì', l: ['Workshop Build your diet, build your skin: chuyên gia SenvieLab cùng bạn lên routine (bàn 1) và chế độ ăn (bàn 2)', 'Soi da: xem tình trạng da trước khi lên routine', 'Dear Skin: viết trang đầu nhật ký, lời nhắn cho da mình', 'Hồng sáng, rạng rỡ nhất. Bé Sen chỉ còn miếng dán hoa sen'], v: 'Biết mình cần làm gì khi da thay đổi, dùng luôn kiến thức ở Zone 2.', cam: [10.4, 7.6, 4.8], tgt: [15.4, 1, -5.2] };
 
-// CHECK-OUT · photobooth
-const pbTex = canvasTex(600, 760, (g, w, h) => {
-  g.fillStyle = '#A4C4E5'; g.beginPath(); g.moveTo(0, h); g.lineTo(0, w / 2); g.arc(w / 2, w / 2, w / 2, Math.PI, 0); g.lineTo(w, h); g.fill();
-  g.fillStyle = '#FDFBFC'; [[90, 640, 90], [210, 680, 80], [400, 660, 100], [530, 620, 80]].forEach(([x, y, r]) => { g.beginPath(); g.arc(x, y, r, 0, 7); g.fill(); }); g.fillRect(0, 680, w, 80);
-  g.fillStyle = '#9E3F5A'; g.font = '700 64px Gwendolyn'; g.textAlign = 'center'; g.fillText('Làn da của mình,', w / 2, 230); g.fillText('câu chuyện của mình', w / 2, 300);
-});
-const pb = new THREE.Mesh(new THREE.PlaneGeometry(3, 3.8), new THREE.MeshStandardMaterial({ map: pbTex, transparent: true, alphaTest: .5, side: THREE.DoubleSide }));
-pb.position.set(18.6, 1.9, 6.5); pb.rotation.y = -Math.PI / 2; scene.add(pb);
-cyl(.03, .03, 1.6, C.ink, 15.8, .8, 6.5, 8); const ringL = new THREE.Mesh(new THREE.TorusGeometry(.35, .04, 8, 32), mat(0xffffff, { emissive: 0xffffff, emissiveIntensity: .8 })); ringL.position.set(15.8, 1.75, 6.5); ringL.rotation.y = Math.PI / 2; scene.add(ringL);
-label('Photobooth', 18.2, 4.5, 6.5);
+// CHECK-OUT · gift redemption: show the gacha QR, join SenvieClub, take the gift
+box(.12, 2.6, 3.4, C.cloud, 19.2, 1.3, 6.5);
+panel(3.2, 2.2, (g, w, h) => {
+  g.fillStyle = '#F7DCE8'; g.fillRect(0, 0, w, h); g.fillStyle = '#9E3F5A'; g.font = '700 96px Gwendolyn'; g.textAlign = 'center'; g.fillText('Đổi quà', w / 2, 110);
+  g.fillStyle = '#4A3550'; g.font = 'italic 400 30px "Playfair Display"'; g.fillText('đưa QR gacha · vào SenvieClub', w / 2, 160);
+  for (let i = 0; i < 6; i++) { g.fillStyle = ['#E99ABD', '#A9BBD0', '#F3B9D2', '#F2D2C1', '#DCC9E8', '#E8BFCB'][i]; rr(g, 40 + i * 74, 210, 60, 60, 12); g.fill(); g.fillStyle = '#fff'; g.fillRect(66 + i * 74, 210, 8, 60); }
+}, 19.13, 1.6, 6.5, -Math.PI / 2);
+box(.8, 1.05, 3, C.cream, 17.6, .52, 6.5); box(.9, .06, 3.1, C.cotton, 17.6, 1.07, 6.5);
+for (let i = 0; i < 5; i++) box(.3, .3, .3, [C.rose, C.sky, C.peach][i % 3], 17.6, 1.25, 5.3 + i * .6);
+label('Đổi quà', 17.8, 2.9, 6.5);
 box(2.4, 1, .7, C.cream, 13, .5, 9.6);
-archSign('', 'Check-out', 'Mang lưu bút về nhà', '#EED3E0', '#9E3F5A', 11.2, 2.6, Math.PI);
-// community wall: visitors pin notes from the guestbook
+archSign('', 'Check-out', 'Mang Dear Skin về nhà', '#EED3E0', '#9E3F5A', 11.2, 2.6, Math.PI);
+// community wall: visitors pin notes from their diary
 box(.12, 2.4, 3.2, C.cloud, 10.6, 1.3, 6);
 panel(3, 2.2, (g, w, h) => {
   g.fillStyle = '#FFF7F1'; g.fillRect(0, 0, w, h); g.fillStyle = '#9E3F5A'; g.font = '700 64px Gwendolyn'; g.fillText('Góc cộng đồng', 30, 70);
-  for (let i = 0; i < 14; i++) { g.save(); g.translate(50 + (i % 5) * 92, 110 + Math.floor(i / 5) * 72); g.rotate(((i * 37) % 11 - 5) / 40); g.fillStyle = ['#EED3E0', '#A4C4E5', '#CBCDE7', '#EAB8C6'][i % 4]; g.fillRect(0, 0, 70, 56); g.restore(); }
+  for (let i = 0; i < 14; i++) { g.save(); g.translate(50 + (i % 5) * 92, 110 + Math.floor(i / 5) * 72); g.rotate(((i * 37) % 11 - 5) / 40); g.fillStyle = ['#F7DCE8', '#A9BBD0', '#DCC9E8', '#F3B9D2'][i % 4]; g.fillRect(0, 0, 70, 56); g.restore(); }
 }, 10.67, 1.4, 6, Math.PI / 2);
 // SenvieClub QR stand
 box(.5, 1.3, .3, C.pink, 12.8, .65, 4.4);
 panel(.42, .42, (g, w, h) => { g.fillStyle = '#fff'; g.fillRect(0, 0, w, h); g.fillStyle = '#4A3550'; for (let i = 0; i < 64; i++) if ((i * 7 + (i >> 3) * 3) % 5 < 2) g.fillRect(40 + (i % 8) * 54, 40 + (i >> 3) * 54, 50, 50); }, 13.06, 1.05, 4.4, Math.PI / 2);
-label('Vào SenvieClub', 12.8, 1.9, 4.4, { size: .8 });
-zones.checkout = { k: 'Bước cuối', t: 'Photobooth & Check-out', e: 'Tự tin, muốn chia sẻ', l: ['Photobooth: khung tự thiết kế, có lời nhắn gratitude cho bạn trẻ', 'Góc cộng đồng: ghim lời nhắn, trang lưu bút lên tường chung', 'Quét QR vào box chat SenvieClub', 'Mang lưu bút về, ra ở cửa bên phải'], cam: [11.2, 4.4, 11.6], tgt: [16.4, 1.2, 5.2] };
+label('Tham gia SenvieClub', 12.8, 1.9, 4.4, { size: .8 });
+zones.checkout = { k: 'Bước cuối', t: 'Check-out · Đổi quà', e: 'Tự tin, muốn chia sẻ', l: ['Đổi quà: đưa QR từ gacha, tham gia SenvieClub (follow page hoặc đăng ảnh check-in) để nhận', 'Góc cộng đồng: ghim lời nhắn từ Dear Skin lên tường chung', 'Mang Dear Skin về, ra ở cửa bên phải'], cam: [11.2, 4.4, 11.6], tgt: [16.4, 1.2, 5.2] };
 
 // PARENTS lounge
 box(6, 3.2, .2, C.cloud, 0, 2.1, 1.6);
-panel(5.6, 2.9, (g, w, h) => { const gr = g.createLinearGradient(0, 0, w, h); gr.addColorStop(0, '#CBCDE7'); gr.addColorStop(1, '#EAB8C6'); g.fillStyle = gr; g.fillRect(0, 0, w, h); g.fillStyle = '#4A3550'; g.font = '600 30px "Be Vietnam Pro"'; g.fillText('VIDEO', 40, 60); g.font = '700 54px Gwendolyn'; g.fillStyle = '#9E3F5A'; g.fillText('SenvieLab × SenvieClub', 40, 160); }, 0, 2.1, 1.72);
+panel(5.6, 2.9, (g, w, h) => { const gr = g.createLinearGradient(0, 0, w, h); gr.addColorStop(0, '#DCC9E8'); gr.addColorStop(1, '#F3B9D2'); g.fillStyle = gr; g.fillRect(0, 0, w, h); g.fillStyle = '#4A3550'; g.font = '600 30px "Be Vietnam Pro"'; g.fillText('VIDEO', 40, 60); g.font = '700 54px Gwendolyn'; g.fillStyle = '#9E3F5A'; g.fillText('SenvieLab × SenvieClub', 40, 160); }, 0, 2.1, 1.72);
 for (let i = 0; i < 3; i++) { box(1.8, .42, .8, C.lav, -2.4 + i * 2.4, .21, 5.6); box(1.8, .5, .16, C.lav, -2.4 + i * 2.4, .6, 6); }
 box(2.6, 1.05, .8, C.cream, 4.6, .52, 8.8); box(2.7, .06, .9, C.leaf, 4.6, 1.07, 8.8);
-panel(2.6, .5, (g, w, h) => { g.fillStyle = '#8DB36B'; g.fillRect(0, 0, w, h); g.fillStyle = '#fff'; g.font = '600 50px "Be Vietnam Pro"'; g.textAlign = 'center'; g.fillText('HTP Pharma', w / 2, h / 2 + 18); }, 4.6, .65, 9.21);
+panel(2.6, .5, (g, w, h) => { g.fillStyle = '#9EB494'; g.fillRect(0, 0, w, h); g.fillStyle = '#fff'; g.font = '600 50px "Be Vietnam Pro"'; g.textAlign = 'center'; g.fillText('HTP Pharma', w / 2, h / 2 + 18); }, 4.6, .65, 9.21);
 box(.6, 1.4, .4, C.pink, -3.5, .7, 9.2); for (let i = 0; i < 3; i++) box(.4, .55, .03, C.cloud, -3.5, 1.0 - i * .4, 9.42);
 label('Video', 0, 4.1, 1.6); label('Booth HTP Pharma', 4.6, 2.1, 8.8); label('Sổ tay chăm da', -3.5, 2.1, 9.2);
-bigLabel('Khu phụ huynh', 0, 6.4, 5, '#4A3550');
+bigLabel('Khu nghỉ ngơi', 0, 5.2, 5, '#4A3550');
 // SenvieLab product booth: science + nature process
 box(2.6, 1.05, .8, C.cream, -.4, .52, 8.8); box(2.7, .06, .9, C.pink, -.4, 1.07, 8.8);
 for (let i = 0; i < 5; i++) cyl(.08, .09, .3, [C.leaf, C.cloud, C.blush][i % 3], -1.3 + i * .45, 1.25, 8.8, 12);
 panel(2.6, .5, (g, w, h) => { g.fillStyle = '#EED3E0'; g.fillRect(0, 0, w, h); g.fillStyle = '#9E3F5A'; g.font = '600 50px "Be Vietnam Pro"'; g.textAlign = 'center'; g.fillText('SenvieLab', w / 2, h / 2 + 18); }, -.4, .65, 9.21);
 label('Booth SenvieLab', -.4, 2.6, 8.8);
-zones.parents = { k: 'Song song', t: 'Khu phụ huynh', e: 'Bố mẹ chờ, xem và tìm hiểu', l: ['Video giới thiệu SenvieLab và SenvieClub', 'Booth SenvieLab: sản phẩm và quy trình khoa học kết hợp tự nhiên', 'Booth HTP Pharma', 'Pamphlet, sổ tay chăm da mang về'], v: 'Bố mẹ thấy SenvieLab là bạn đồng hành đáng tin, có HTP Pharma bảo trợ.', cam: [0, 6, 17], tgt: [0, 1, 5] };
+zones.parents = { k: 'Song song', t: 'Khu nghỉ ngơi', e: 'Phụ huynh, người đi cùng chờ và tìm hiểu', l: ['Video giới thiệu SenvieLab và SenvieClub', 'Booth SenvieLab: sản phẩm và quy trình khoa học kết hợp tự nhiên', 'Booth HTP Pharma', 'Pamphlet, sổ tay chăm da mang về'], v: 'Bố mẹ thấy SenvieLab là bạn đồng hành đáng tin, có HTP Pharma bảo trợ.', cam: [0, 6, 17], tgt: [0, 1, 5] };
 
 // clouds overhead (denser in Zone 1)
 [[-16, 4.2, -8, 1.3], [-12, 4.0, -3, 1.1], [-17, 4.4, -1, 1], [-10, 4.6, -9, .9], [-14, 3.8, -6, .8],
@@ -371,21 +384,35 @@ const parents = [0, .25, .5, .75].map((t, i) => ({ g: person([0x8A7A90, 0x6E8FB8
 // ---------- UI ----------
 const card = document.getElementById('card');
 const show = (z) => { card.innerHTML = `<div class="k">${z.k}</div><h2>${z.t}</h2><div class="e">${z.e}</div><ul>${z.l.map((s) => `<li>${s}</li>`).join('')}</ul>${z.v ? `<div class="v">${z.v}</div>` : ''}`; document.getElementById('dui').style.display = z === zones.z2 || z === zones.dial ? 'block' : 'none'; dialLabel.visible = z !== zones.dial; };
-const overview = { k: 'Tổng quan', t: 'Giải mã làn da', e: 'Đêm → sáng, ngại → tự tin', l: ['Cửa vào → Check-in → Zone 1 → Zone 2 → Zone 3 → Photobooth → Cửa ra', 'Khu phụ huynh ở giữa, đi song song', 'Mỗi zone một màu nền, sen nở dần'], cam: [0, 34, 40], tgt: [0, 0, -1] };
-zones.dial = { k: 'Zone 2 · Demo', t: 'Bàn xoay hormone', e: 'Xoay núm từ 9 đến 18 tuổi', l: ['Kéo thanh bên trái để chọn tuổi', 'Kim chỉ tuổi, ba thanh cho thấy dầu, mụn, độ nhạy cảm thay đổi', 'Ngoài đời là một núm xoay thật trên bàn tròn'], cam: [2.2, 3.4, -3.3], tgt: [2.2, .95, -6.2] };
+const overview = { k: 'Tổng quan', t: 'Giải mã làn da', e: 'Đêm → sáng, ngại → tự tin', l: ['Cửa vào → Check-in → Zone 1 → Zone 2 → Zone 3 → Check-out đổi quà → Cửa ra', 'Khu nghỉ ngơi ở giữa, đi song song', 'Xanh sương → hồng bụi → hồng sáng'], cam: [0, 34, 40], tgt: [0, 0, -1] };
+zones.dial = { k: 'Zone 2 · Demo', t: 'Hỏi bé Sen', e: 'Da mỗi người mỗi khác', l: ['Chọn một hay nhiều điều da đang gặp ở bảng bên trái', 'Bé Sen gộp lại, đưa lời khuyên ăn, ngủ, chăm da', 'Quay gacha ra số quà, nhận QR để đổi ở check-out'], cam: [2.3, 3.2, -2.6], tgt: [2.3, 1.1, -6.2] };
 show(overview);
 
-// hormone dial demo (illustrative numbers)
-const LV = [[10, 14, 24, 38, 54, 68, 78, 82, 78, 72], [4, 8, 16, 30, 48, 62, 70, 66, 58, 50], [30, 32, 38, 46, 52, 54, 50, 46, 42, 40]];
-const note = (a) => a <= 10 ? 'Da còn ổn định, ít dầu.' : a <= 12 ? 'Hormone bắt đầu tăng, vùng chữ T đổ dầu.' : a <= 15 ? 'Tuyến dầu chạy mạnh nhất, mụn dễ nổi. Chuyện bình thường.' : 'Dầu và mụn giảm dần, da ổn định hơn.';
-const dui = document.getElementById('dui'), drange = document.getElementById('drange');
-let age = 9, ageAuto = true, ageClock = 0;
-function setAge(a) {
-  age = a; drange.value = a; document.getElementById('dage').textContent = a + ' tuổi'; document.getElementById('dnote').textContent = note(a);
-  LV.forEach((l, i) => { document.getElementById('b' + i).style.width = l[a - 9] + '%'; });
+// Hỏi bé Sen demo: picks -> shared traits + daily tips -> gacha gift count (min 1) -> QR
+const SK = {
+  dau: { n: 'Dầu', t: 'hơi dầu', a: 'Rửa mặt dịu 2 lần/ngày, đừng rửa quá nhiều', d: 'bớt đồ chiên', g: 'sữa rửa mặt mini' },
+  mun: { n: 'Mụn', t: 'dễ nổi mụn', a: 'Không nặn, giữ tay và vỏ gối sạch', d: 'bớt trà sữa, đồ ngọt', g: 'miếng dán hoa sen' },
+  kho: { n: 'Khô', t: 'hơi khô', a: 'Dưỡng ẩm ngay sau khi rửa mặt', d: 'uống đủ nước, ăn thêm rau quả', g: 'kem dưỡng ẩm mini' },
+  kich: { n: 'Kích ứng', t: 'dễ kích ứng', a: 'Dùng ít sản phẩm, thử ở vùng nhỏ trước', d: 'hạn chế đồ cay', g: 'xịt khoáng mini' },
+};
+const dui = document.getElementById('dui');
+const picks = new Set(['dau', 'mun']); let gifts = 0;
+function renderHS() {
+  const p = [...picks];
+  const head = p.length ? 'Da bạn ' + p.map((k) => SK[k].t).join(', ') : 'Chọn ít nhất một';
+  const tips = p.length ? [...p.map((k) => SK[k].a), 'Ngủ trước 11h, ' + p.map((k) => SK[k].d).join(', ')] : [];
+  dui.innerHTML = `<div class="k">Hỏi bé Sen · thử chọn</div><div class="q">Da bạn đang thế nào?</div>
+  <div class="chips">${Object.entries(SK).map(([k, v]) => `<button data-k="${k}" class="${picks.has(k) ? 'on' : ''}">${v.n}</button>`).join('')}</div>
+  <div class="age">${head}</div><ul>${tips.map((t) => `<li>${t}</li>`).join('')}</ul>
+  ${gifts ? `<div class="gift"><div><b>${gifts} phần quà</b><br>${(([t]) => t[0].toUpperCase() + t.slice(1))([p.slice(0, gifts).map((k) => SK[k].g).join(', ') + (gifts > p.length ? ' + quà bất ngờ' : '')])}<br><span>Giữ QR, đổi ở check-out</span></div><canvas id="qr" width="64" height="64"></canvas></div>`
+    : `<button class="spin" ${p.length ? '' : 'disabled'}>Quay gacha</button>`}
+  <div class="s">Lời khuyên minh hoạ, cần chuyên gia duyệt. Quà tuỳ sample thực tế.</div>`;
+  dui.querySelectorAll('.chips button').forEach((b) => { b.onclick = () => { picks.has(b.dataset.k) ? picks.delete(b.dataset.k) : picks.add(b.dataset.k); gifts = 0; renderHS(); }; });
+  const sp = dui.querySelector('.spin'); if (sp) sp.onclick = () => { spinT = 60; gifts = 1 + Math.floor(Math.random() * Math.min(3, picks.size + 1)); renderHS(); };
+  const qr = dui.querySelector('#qr'); if (qr) { const g = qr.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, 64, 64); g.fillStyle = '#4A3550'; for (let i = 0; i < 64; i++) if ((i * 7 + (i >> 3) * 3 + gifts) % 5 < 2) g.fillRect((i % 8) * 8, (i >> 3) * 8, 7, 7); [[0, 0], [40, 0], [0, 40]].forEach(([x, y]) => { g.fillRect(x, y, 24, 24); g.fillStyle = '#fff'; g.fillRect(x + 5, y + 5, 14, 14); g.fillStyle = '#4A3550'; g.fillRect(x + 9, y + 9, 6, 6); }); }
 }
-drange.oninput = () => { ageAuto = false; setAge(+drange.value); };
-setAge(9);
+let spinT = 0;
+renderHS();
 
 let tween = null, tour = null;
 function fly(z) {
@@ -393,18 +420,18 @@ function fly(z) {
   tween = { t: 0, p0: camera.position.clone(), q0: controls.target.clone(), p1: new THREE.Vector3(...z.cam), q1: new THREE.Vector3(...z.tgt) };
 }
 const bar = document.getElementById('bar');
-const items = [['Tổng quan', overview], ['Check-in', zones.checkin], ['Zone 1', zones.z1], ['Zone 2', zones.z2], ['Núm xoay', zones.dial], ['Zone 3', zones.z3], ['Photobooth', zones.checkout], ['Phụ huynh', zones.parents]];
+const items = [['Tổng quan', overview], ['Check-in', zones.checkin], ['Zone 1', zones.z1], ['Zone 2', zones.z2], ['Hỏi bé Sen', zones.dial], ['Zone 3', zones.z3], ['Check-out', zones.checkout], ['Khu nghỉ ngơi', zones.parents]];
 items.forEach(([n, z], i) => { const b = document.createElement('button'); b.textContent = n; if (!i) b.className = 'on'; b.onclick = () => { [...bar.children].forEach((x) => x.classList.remove('on')); b.classList.add('on'); fly(z); }; bar.appendChild(b); });
 const go = document.createElement('button'); go.className = 'go'; go.textContent = '▶ Đi một vòng'; bar.appendChild(go);
 go.onclick = () => { tween = null; tour = { t: 0 }; [...bar.children].forEach((x) => x.classList.remove('on')); };
 
-// click the dial (not a drag) to open the demo
+// click the kiosk or gacha (not a drag) to open the demo
 const ray = new THREE.Raycaster(), ptr = new THREE.Vector2(); let down = null;
 renderer.domElement.addEventListener('pointerdown', (e) => { down = [e.clientX, e.clientY]; });
 renderer.domElement.addEventListener('pointerup', (e) => {
   if (!down || Math.hypot(e.clientX - down[0], e.clientY - down[1]) > 5) return;
   ptr.set(e.clientX / innerWidth * 2 - 1, -e.clientY / innerHeight * 2 + 1); ray.setFromCamera(ptr, camera);
-  if (ray.intersectObjects([dial, needle], true).length) { [...bar.children].forEach((x) => x.classList.toggle('on', x.textContent === 'Núm xoay')); fly(zones.dial); }
+  if (ray.intersectObjects([kiosk, globe], true).length) { [...bar.children].forEach((x) => x.classList.toggle('on', x.textContent === 'Hỏi bé Sen')); fly(zones.dial); }
 });
 
 // which info card to show during the walk-through
@@ -425,9 +452,7 @@ renderer.setAnimationLoop(() => {
     p.g.rotation.y = Math.atan2(tan.x, tan.z);
   }
   for (const p of parents) { p.t = (p.t + p.sp * .02 * dt) % 1; parentLoop.getPointAt(p.t, tmp); parentLoop.getTangentAt(p.t, tan); p.g.position.copy(tmp); p.g.rotation.y = Math.atan2(tan.x, tan.z); }
-  if (ageAuto && (ageClock += dt) > 80) { ageClock = 0; setAge(age === 18 ? 9 : age + 1); }
-  const goal = Math.PI / 2 - ((age - 9) / 10) * Math.PI * 2; // clockwise from the far edge (-z)
-  needle.rotation.y += (goal - needle.rotation.y) * .12 * dt;
+  if (spinT > 0) { spinT -= dt; globe.rotation.y += .25 * dt; }
   if (tween) {
     tween.t = Math.min(tween.t + .018 * dt, 1); const k = ease(tween.t);
     camera.position.lerpVectors(tween.p0, tween.p1, k); controls.target.lerpVectors(tween.q0, tween.q1, k);
@@ -446,10 +471,12 @@ renderer.setAnimationLoop(() => {
   renderer.render(scene, camera);
 });
 addEventListener('resize', () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); });
-window.__sim = { scene, camera, controls, fly, zones, flow, parentLoop, teens, parents };
+window.__sim = { picks, renderHS, scene, camera, controls, fly, zones, flow, parentLoop, teens, parents };
 // ?view=z1 etc. jumps straight to a preset (used for screenshots)
-const v = new URLSearchParams(location.search).get('view'), qa = new URLSearchParams(location.search).get('age');
-if (qa) { ageAuto = false; setAge(+qa); needle.rotation.y = Math.PI / 2 - ((+qa - 9) / 10) * Math.PI * 2; }
+const q = new URLSearchParams(location.search), v = q.get('view') === 'hoisen' ? 'dial' : q.get('view');
+if (q.get('pick')) { picks.clear(); q.get('pick').split(',').forEach((k) => SK[k] && picks.add(k)); }
+if (q.get('gifts')) gifts = +q.get('gifts');
+renderHS();
 if (v && zones[v]) { show(zones[v]); camera.position.set(...zones[v].cam); controls.target.set(...zones[v].tgt); }
 if (new URLSearchParams(location.search).has('clean')) document.querySelectorAll('.top,.card,.bar,.hint,.dui').forEach((e) => { e.style.display = 'none'; }); // deck screenshots
 </script>
