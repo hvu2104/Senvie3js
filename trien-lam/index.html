@@ -451,7 +451,7 @@ window.__sim = { scene, camera, controls, fly, zones, flow, parentLoop, teens, p
 const v = new URLSearchParams(location.search).get('view'), qa = new URLSearchParams(location.search).get('age');
 if (qa) { ageAuto = false; setAge(+qa); needle.rotation.y = Math.PI / 2 - ((+qa - 9) / 10) * Math.PI * 2; }
 if (v && zones[v]) { show(zones[v]); camera.position.set(...zones[v].cam); controls.target.set(...zones[v].tgt); }
-if (new URLSearchParams(location.search).has('clean')) document.querySelectorAll(v === 'dial' ? '.top,.card,.bar,.hint' : '.top,.card,.bar,.hint,.dui').forEach((e) => { e.style.display = 'none'; }); // deck screenshots
+if (new URLSearchParams(location.search).has('clean')) document.querySelectorAll('.top,.card,.bar,.hint,.dui').forEach((e) => { e.style.display = 'none'; }); // deck screenshots
 </script>
 </body>
 </html>
