@@ -1,0 +1,98 @@
+{
+ "updated": "2026-11-05",
+ "palette": [
+  {
+   "name": "Tím than (chữ)",
+   "hex": "#2B2340"
+  },
+  {
+   "name": "Kem (nền)",
+   "hex": "#FFF6EC"
+  },
+  {
+   "name": "Hồng đậm",
+   "hex": "#E0457B"
+  },
+  {
+   "name": "Vàng kim",
+   "hex": "#E8B53C"
+  },
+  {
+   "name": "Indigo đêm",
+   "hex": "#34407A"
+  },
+  {
+   "name": "Tím mộng",
+   "hex": "#6B5CA5"
+  },
+  {
+   "name": "Misty blue",
+   "hex": "#B9C6E6"
+  },
+  {
+   "name": "Lavender",
+   "hex": "#D9CFF0"
+  },
+  {
+   "name": "Berry",
+   "hex": "#A8326E"
+  },
+  {
+   "name": "Tím hồng",
+   "hex": "#8E5BB5"
+  },
+  {
+   "name": "Dusty blush",
+   "hex": "#F2C4D3"
+  },
+  {
+   "name": "Peach",
+   "hex": "#F9D3BE"
+  },
+  {
+   "name": "Hot pink",
+   "hex": "#E4407B"
+  },
+  {
+   "name": "Vàng kim P3",
+   "hex": "#E0B44C"
+  },
+  {
+   "name": "Cotton pink",
+   "hex": "#FFD6E5"
+  },
+  {
+   "name": "Kem vàng",
+   "hex": "#FFF1D6"
+  },
+  {
+   "name": "Xanh trời",
+   "hex": "#4A90D9"
+  },
+  {
+   "name": "San hô",
+   "hex": "#F2726B"
+  },
+  {
+   "name": "Lilac",
+   "hex": "#E3D7F5"
+  },
+  {
+   "name": "Cobalt",
+   "hex": "#3557C9"
+  },
+  {
+   "name": "Mint",
+   "hex": "#4FBFA8"
+  },
+  {
+   "name": "Mint nhạt",
+   "hex": "#CDEFE6"
+  },
+  {
+   "name": "Xám xanh",
+   "hex": "#5B6B8C"
+  }
+ ],
+ "refs": []
+}
