@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Soát Nội Dung</title>
+<title>VCheck</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
 <style>
@@ -33,7 +33,6 @@ button { cursor: pointer; }
 .shell { display: grid; grid-template-columns: 280px minmax(0, 1fr); min-height: 100vh; }
 nav.side { border-right: 1px solid var(--line); padding: 16px 14px; display: flex; flex-direction: column; gap: 14px; position: sticky; top: 0; height: 100vh; }
 .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; padding: 4px 6px; }
-.brand i { width: 32px; height: 32px; border-radius: 9px; background: var(--ink); color: var(--bg); display: grid; place-items: center; font-style: normal; font-size: 15px; }
 .menu { display: grid; gap: 2px; }
 .menu button { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; border: 1px solid transparent; background: none; border-radius: 10px; padding: 9px 10px; font-weight: 500; }
 .menu button:hover { background: var(--soft); }
@@ -157,6 +156,11 @@ input.txt { border: 1px solid var(--line); border-radius: 10px; padding: 8px 12p
 details summary { cursor: pointer; font-weight: 500; }
 details pre { white-space: pre-wrap; font: 13px/1.5 var(--font); background: var(--soft); border-radius: 12px; padding: 12px; margin: 10px 0 0; max-height: 260px; overflow: auto; }
 .toast { font-size: 13px; color: var(--ok); }
+.terms { display: flex; flex-wrap: wrap; gap: 6px; }
+.terms span { font-size: 12.5px; border: 1px solid var(--line); border-radius: 6px; padding: 1px 7px; color: var(--muted); }
+.rule { display: grid; gap: 6px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+.rule:last-child { border-bottom: 0; }
+.rule p { margin: 0; font-size: 14px; color: var(--muted); }
 .foot { color: var(--muted); font-size: 12.5px; margin: 0; }
 .foot a { color: var(--blue); }
 
@@ -175,11 +179,12 @@ details pre { white-space: pre-wrap; font: 13px/1.5 var(--font); background: var
 <body>
 <div class="shell">
   <nav class="side" aria-label="Điều hướng">
-    <div class="brand"><i><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 3 5 6v5c0 4.5 3 8.3 7 10 4-1.7 7-5.5 7-10V6z"/><path d="m9 12 2 2 4-4"/></svg></i>Soát Nội Dung</div>
+    <div class="brand">VCheck</div>
     <div class="menu" role="tablist">
       <button data-view="video" aria-current="page"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="13" height="14" rx="3"/><path d="m16 10 5-3v10l-5-3"/></svg>Soát video</button>
       <button data-view="design"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="9" cy="9" r="2"/><path d="m21 16-5-5-9 9"/></svg>Soát thiết kế</button>
       <button data-view="guide"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5M8 7h6"/></svg>Guideline thương hiệu<span class="tag">Admin</span></button>
+      <button data-view="rules"><svg viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg>Danh sách chặn</button>
     </div>
     <div class="card-note"><b>Chạy ngay trên máy</b>Video và ảnh không gửi đi đâu. Lần đầu dùng, trình duyệt tải các model AI (khoảng 400MB), những lần sau mở nhanh hơn. Nghe lời thoại mất khoảng 4 giây cho mỗi giây video.</div>
   </nav>
@@ -320,6 +325,15 @@ details pre { white-space: pre-wrap; font: 13px/1.5 var(--font); background: var
           </div>
         </aside>
       </div>
+    </section>
+
+    <!-- RULES -->
+    <section data-panel="rules" hidden>
+      <div class="hello">
+        <h1>Danh sách chặn</h1>
+        <p>VCheck soát đúng những mục dưới đây, không hơn. Thấy thiếu hoặc báo nhầm thì báo Admin để sửa.</p>
+      </div>
+      <div class="feed" id="rulesList" style="margin-top:28px;max-width:860px"></div>
     </section>
 
     <p class="foot" style="margin-top:32px">Quy tắc soạn ngày 05/11/2026 theo <a href="https://www.tiktok.com/safety/vi-VN/policies-and-engagement/overview" target="_blank" rel="noopener">Nguyên tắc Cộng đồng TikTok</a>, <a href="https://ads.tiktok.com/help/article/tiktok-ads-policy-healthcare-pharmaceuticals" target="_blank" rel="noopener">chính sách quảng cáo Y tế</a> và <a href="https://lsvn.vn/nhung-diem-moi-cua-nghi-dinh-342-2025-nd-cp-quy-dinh-chi-tiet-luat-quang-cao-a169273.html" target="_blank" rel="noopener">Nghị định 342/2025</a>. Kết quả gắn nhãn “AI đoán” cần người xem lại. Tool giảm rủi ro, không đảm bảo video không bị TikTok xử lý.</p>

@@ -1,4 +1,4 @@
-import { scan, SEV, RANK, SRC } from './rules.js';
+import { scan, SEV, RANK, SRC, RULES } from './rules.js';
 import { hex2rgb, rgb2hex, rgb2lab, deltaE, chroma, palette, boxContrast, outsideSafe, isVertical, fmtTime } from './vision.js';
 import { ocr, clip, asr, cos } from './models.js';
 
@@ -13,6 +13,27 @@ function show(view) {
   document.querySelectorAll('.menu button').forEach((b) => b.dataset.view === view ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current'));
   document.querySelectorAll('[data-panel]').forEach((p) => (p.hidden = p.dataset.panel !== view));
   if (view === 'guide') renderGuide();
+  if (view === 'rules') renderRules();
+}
+
+// Public list generated from the same data the checks use, so it can't drift from what VCheck actually flags.
+function renderRules() {
+  const label = (r, t) => /100/.test(t.source) ? '100%' : { promise: 'sau / trong / chỉ X ngày, tuần, giờ', minorinfo: 'tên trường, lớp', contact: 'số điện thoại' }[r.id];
+  const term = (r) => (t) => `<span>${esc(t instanceof RegExp ? label(r, t) : t)}</span>`;
+  const rule = (name, sev, why, terms = []) => `<div class="rule"><div class="row"><span class="pill ${sev}">${SEV[sev]}</span><b>${esc(name)}</b></div><p>${esc(why)}</p>${terms.length ? `<div class="terms">${terms.join('')}</div>` : ''}</div>`;
+  const group = (title, note, body) => `<div class="card"><h2>${title}</h2><p class="muted">${note}</p><div>${body}</div></div>`;
+  $('rulesList').innerHTML = [
+    group('Chữ trên hình, lời thoại, caption', 'Khớp nguyên từ, có dấu hoặc không dấu (với cụm từ 2 chữ trở lên).',
+      [...RULES].sort((a, b) => RANK[a.sev] - RANK[b.sev]).map((r) => rule(r.name, r.sev, r.why, r.terms.map(term(r)))).join('')),
+    group('Hình ảnh', 'AI đoán từ khung hình, luôn cần người xem lại.',
+      RISKS.map((r) => rule(r.name, 'warn', r.why)).join('') + rule('Logo thương hiệu khác', 'warn', 'Logo của thương hiệu khác hiện rõ trong khung hình.', LOGOS.map((l) => `<span>${esc(l)}</span>`))
+      + rule('Watermark, tên tài khoản khác', 'warn', 'Chữ Veo, Gemini, TikTok, CapCut, Kling, Runway, Seedance, Hailuo, Pika, Sora hoặc @tên tài khoản trên hình.')),
+    group('Kỹ thuật', 'Đo từ file video và vị trí chữ.',
+      [['Không phải khung 9:16', 'warn', 'Video phải dọc 1080×1920.'], ['Độ phân giải dưới 720p', 'tip', 'Nhìn mờ trên điện thoại.'], ['Dài hơn 60 giây', 'tip', 'Video sản phẩm 7–15s, kiến thức tối đa 60s.'],
+        ['Chữ ngoài safe zone', 'tip', 'Chữ trong 12% phía trên, 22% phía dưới hoặc 15% bên phải bị giao diện che.'], ['Hơn 5 hashtag', 'tip', 'Dễ trông như spam.']].map((x) => rule(...x)).join('')),
+    group('Checklist người đăng tự xác nhận', 'AI không tự kiểm tra được, chưa trả lời thì bị nhắc.',
+      CHECKS.map((c) => rule(c.q, c.opts.find(([, s]) => s)?.[1] ?? 'tip', c.why)).join('')),
+  ].join('');
 }
 
 /* ---------- shared: issues + steps ---------- */
