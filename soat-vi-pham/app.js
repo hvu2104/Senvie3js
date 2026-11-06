@@ -41,7 +41,7 @@ function issueBox() {
   const map = new Map();
   return {
     add(key, base, ev = {}) {
-      const it = map.get(key) || { sev: base.sev, name: base.name, why: base.why, fix: base.fix, src: base.src, ai: base.ai, frames: [], quotes: [] };
+      const it = map.get(key) || { key, sev: base.sev, name: base.name, why: base.why, fix: base.fix, src: base.src, ai: base.ai, frames: [], quotes: [] };
       if (ev.frame && it.frames.length < 6) it.frames.push(ev.frame);
       if (ev.quote && it.quotes.length < 8 && !it.quotes.some((q) => q.text === ev.quote.text && q.where === ev.quote.where)) it.quotes.push(ev.quote);
       map.set(key, it);
@@ -49,24 +49,41 @@ function issueBox() {
     list: () => [...map.values()].sort((a, b) => RANK[a.sev] - RANK[b.sev]),
   };
 }
-function renderIssues(el, list, filter = 'all') {
+// Editor's claim that a flagged item is real (e.g. a licensed pharmacist really speaks); a lead checks it from the report.
+const approvals = new Map();
+const canApprove = (i) => !/^(chk|err)-/.test(i.key);
+function renderIssues(el, list, filter = 'all', rerender = () => {}) {
   const shown = list.filter((i) => filter === 'all' || i.sev === filter);
-  el.innerHTML = shown.map((i) => `<article class="issue">
-    <div class="head"><span class="pill ${i.sev}">${SEV[i.sev]}</span><b>${esc(i.name)}</b>${i.ai ? '<span class="ai">AI đoán, cần xem lại</span>' : ''}</div>
+  el.innerHTML = shown.map((i) => {
+    const ap = approvals.get(i.key);
+    return `<article class="issue">
+    <div class="head">${ap ? '<span class="pill pend">Chờ lead duyệt</span>' : `<span class="pill ${i.sev}">${SEV[i.sev]}</span>`}<b>${esc(i.name)}</b>${i.ai ? '<span class="ai">AI đoán, cần xem lại</span>' : ''}</div>
     ${i.quotes.length ? `<div class="quotes">${i.quotes.map((q) => `<div><time>${q.t != null ? fmtTime(q.t) : ''}</time><span><span class="muted">${esc(q.where)}:</span> “${esc(q.text)}”</span></div>`).join('')}</div>` : ''}
     ${i.frames.length ? `<div class="ev">${i.frames.map((f) => `<figure><img src="${f.img}" alt=""><figcaption>${esc(f.label)}</figcaption></figure>`).join('')}</div>` : ''}
     <p class="why">${esc(i.why)}</p>
     ${i.fix ? `<p class="fix"><b>Cách sửa:</b> ${esc(i.fix)}</p>` : ''}
     ${i.src ? `<a href="${i.src}" target="_blank" rel="noopener">Xem quy định →</a>` : ''}
-  </article>`).join('') || (list.length ? '<p class="muted">Không có mục nào ở nhóm này.</p>' : '');
+    ${!canApprove(i) ? '' : ap ? `<p class="approved">Editor xác nhận có thật: ${esc(ap)}<button data-undo="${esc(i.key)}">Huỷ</button></p>`
+      : `<details class="appr"><summary>Có thật, xin duyệt ngoại lệ</summary><textarea placeholder="Ghi bằng chứng cho lead kiểm tra, ví dụ: Dược sĩ Nguyễn Văn A, chứng chỉ hành nghề số 1234, có hợp đồng."></textarea><div class="row"><button class="btn" data-ok="${esc(i.key)}">Gửi lead duyệt</button><span class="muted"></span></div></details>`}
+  </article>`;
+  }).join('') || (list.length ? '<p class="muted">Không có mục nào ở nhóm này.</p>' : '');
+  el.onclick = (e) => {
+    const ok = e.target.closest('[data-ok]'), undo = e.target.closest('[data-undo]');
+    if (ok) {
+      const box = ok.closest('details'), why = box.querySelector('textarea').value.trim();
+      if (!why) return (box.querySelector('.row .muted').textContent = 'Cần ghi bằng chứng để lead kiểm tra.');
+      approvals.set(ok.dataset.ok, why); rerender();
+    } else if (undo) { approvals.delete(undo.dataset.undo); rerender(); }
+  };
 }
 function renderVerdict(el, list) {
-  const n = { block: 0, warn: 0, tip: 0 }; list.forEach((i) => n[i.sev]++);
+  const n = { block: 0, warn: 0, tip: 0 }, pend = list.filter((i) => approvals.has(i.key)).length;
+  list.forEach((i) => approvals.has(i.key) || n[i.sev]++);
   const top = n.block ? 'block' : n.warn ? 'warn' : n.tip ? 'tip' : 'ok';
-  const title = { block: 'Chưa nên đăng', warn: 'Đăng được nhưng dễ bị hạn chế', tip: 'Đăng được, nên sửa thêm', ok: 'Không phát hiện lỗi' }[top];
+  const title = { block: 'Chưa nên đăng', warn: 'Đăng được nhưng dễ bị hạn chế', tip: 'Đăng được, nên sửa thêm', ok: pend ? 'Chờ lead duyệt ngoại lệ' : 'Không phát hiện lỗi' }[top];
   el.className = 'verdict ' + top;
-  el.innerHTML = `<strong>${title}</strong><div class="counts">${['block', 'warn', 'tip'].map((s) => `<span class="pill ${s}">${n[s]} ${SEV[s]}</span>`).join('')}</div>`;
-  return { title, n };
+  el.innerHTML = `<strong>${title}</strong><div class="counts">${['block', 'warn', 'tip'].map((s) => `<span class="pill ${s}">${n[s]} ${SEV[s]}</span>`).join('')}${pend ? `<span class="pill pend">${pend} chờ duyệt</span>` : ''}</div>`;
+  return { title, n, pend };
 }
 function steps(el, names) {
   el.innerHTML = names.map(([id, label]) => `<div class="step" data-s="${id}"><span class="dot"></span><span>${label}</span><small></small></div>`).join('');
@@ -122,7 +139,7 @@ const WATERMARK = /\b(veo|gemini|tiktok|capcut|kling|runway|seedance|hailuo|pika
 let vFileObj = null, lastVideo = null, vFilter = 'all';
 function pickVideo(f) {
   if (!f || !f.type.startsWith('video')) return;
-  vFileObj = f; $('vDrop').firstChild.textContent = f.name;
+  vFileObj = f; approvals.clear(); $('vDrop').firstChild.textContent = f.name;
   $('vPreview').src = URL.createObjectURL(f); $('vMediaCard').hidden = false; $('vRun').disabled = false; $('vHint').textContent = '';
   $('vSteps').innerHTML = '';
   once($('vPreview'), 'loadedmetadata').then(() => {
@@ -254,13 +271,13 @@ function finishVideo(R) {
 
   const list = box.list();
   const v = renderVerdict($('vVerdict'), list);
-  renderIssues($('vIssues'), list, vFilter); $('vTabs').hidden = false;
+  renderIssues($('vIssues'), list, vFilter, () => finishVideo(R)); $('vTabs').hidden = false;
   $('vRead').hidden = false;
   $('vOcrText').textContent = [...new Map(R.ocr.map((l) => [l.text.toLowerCase(), `${fmtTime(l.t)}  ${l.text}`])).values()].join('\n') || '(không đọc được chữ nào)';
   $('vAsrText').textContent = R.asr.map((c) => `${fmtTime(c.t)}  ${c.text}`).join('\n') || '(không có lời thoại)';
   $('vCopy').disabled = false;
-  $('vCopy').onclick = () => copy(`Soát video "${vFileObj?.name}": ${v.title}\n${v.n.block} Chặn · ${v.n.warn} Cảnh báo · ${v.n.tip} Gợi ý\n\n` +
-    list.map((i) => `[${SEV[i.sev]}] ${i.name}${i.ai ? ' (AI đoán)' : ''}\n${i.quotes.map((q) => `  ${q.t != null ? fmtTime(q.t) + ' ' : ''}${q.where}: "${q.text}"`).join('\n')}${i.quotes.length ? '\n' : ''}  ${i.why}${i.fix ? '\n  Cách sửa: ' + i.fix : ''}`).join('\n\n'), $('vToast'));
+  $('vCopy').onclick = () => copy(`Soát video "${vFileObj?.name}": ${v.title}\n${v.n.block} Chặn · ${v.n.warn} Cảnh báo · ${v.n.tip} Gợi ý${v.pend ? ` · ${v.pend} chờ lead duyệt` : ''}\n\n` +
+    list.map((i) => `[${approvals.has(i.key) ? 'Chờ lead duyệt' : SEV[i.sev]}] ${i.name}${i.ai ? ' (AI đoán)' : ''}${approvals.has(i.key) ? '\n  Editor xác nhận có thật: ' + approvals.get(i.key) : ''}\n${i.quotes.map((q) => `  ${q.t != null ? fmtTime(q.t) + ' ' : ''}${q.where}: "${q.text}"`).join('\n')}${i.quotes.length ? '\n' : ''}  ${i.why}${i.fix ? '\n  Cách sửa: ' + i.fix : ''}`).join('\n\n'), $('vToast'));
 }
 $('vTabs').addEventListener('click', (e) => {
   const b = e.target.closest('button'); if (!b || !lastVideo) return;
@@ -315,7 +332,7 @@ $('dFile').addEventListener('change', (e) => pickDesign(e.target.files[0]));
 $('dPlus').addEventListener('click', () => $('dFile').click());
 async function pickDesign(f) {
   if (!f || !f.type.startsWith('image')) return;
-  dFileObj = f; $('dDrop').firstChild.textContent = f.name;
+  dFileObj = f; approvals.clear(); $('dDrop').firstChild.textContent = f.name;
   const img = await loadImg(await fileUrl(f));
   $('dPreview').src = img.src; $('dMediaCard').hidden = false;
   $('dMeta').innerHTML = [['Tên file', f.name], ['Kích thước', `${img.width} × ${img.height}`], ['Tỷ lệ', isVertical(img.width, img.height) ? '9:16' : (img.width / img.height).toFixed(2)]].map(([k, v]) => `<div><span>${k}</span>${esc(v)}</div>`).join('');
@@ -381,6 +398,6 @@ async function checkDesign(img) {
   } catch (e) { set('ocr', 'err', e.message); }
 
   const list = box.list();
-  renderVerdict($('dVerdict'), list);
-  renderIssues($('dIssues'), list);
+  const show = () => { renderVerdict($('dVerdict'), list); renderIssues($('dIssues'), list, 'all', show); };
+  show();
 }
