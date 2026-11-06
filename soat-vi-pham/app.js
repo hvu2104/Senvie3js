@@ -57,7 +57,7 @@ const progressNote = (set, id, label) => { const files = {}; return (p) => { if 
 const CHECKS = [
   { id: 'disc', q: 'Nhãn nội dung thương mại', opts: [['Đã bật', null], ['Chưa bật', 'block'], ['Không quảng bá', null]], why: 'Video quảng bá sản phẩm mà chưa bật nhãn “Nội dung thương mại” sẽ bị TikTok yêu cầu bật trong 24 giờ hoặc bị gỡ.', src: SRC.disc },
   { id: 'aigc', q: 'Nhãn nội dung AI', opts: [['Đã bật', null], ['Chưa bật', 'block'], ['Không dùng AI', null]], why: 'TikTok yêu cầu dán nhãn rõ ràng khi dùng AI để mô tả người hoặc cảnh giống thật.', src: SRC.cg },
-  { id: 'minor', q: 'Người dưới 18 tuổi trong video', opts: [['Có đồng ý phụ huynh', null], ['Chưa có đồng ý', 'block'], ['Không có', null]], why: 'Quy định nội bộ của campaign: người dưới 18 tuổi phải có đồng ý bằng văn bản của phụ huynh.', src: null },
+  { id: 'minor', q: 'Người dưới 18 tuổi trong video', opts: [['Có đồng ý phụ huynh', null], ['Chưa có đồng ý', 'block'], ['Không có', null]], why: 'Nên có: người dưới 18 tuổi phải có đồng ý bằng văn bản của phụ huynh.', src: null },
   { id: 'music', q: 'Nhạc nền', opts: [['Có license / CML', null], ['Nhạc trend cá nhân', 'block'], ['Không có nhạc', null]], why: 'Tài khoản doanh nghiệp dùng nhạc không có license có thể bị tắt tiếng hoặc gỡ video.', src: SRC.cg },
   { id: 'expert', q: 'Lời khuyên về da đã được chuyên gia duyệt', opts: [['Đã duyệt', null], ['Chưa duyệt', 'warn'], ['Không có lời khuyên', null]], why: 'Thông tin sai về sức khỏe có thể bị gỡ. Quy định nội bộ: mọi lời khuyên chăm da cần chuyên gia duyệt.', src: SRC.cg },
 ];
@@ -209,7 +209,7 @@ function finishVideo(R) {
   if (g) {
     if (!isVertical(g.w, g.h)) box.add('ratio', { sev: 'warn', name: `Khung hình ${g.w}×${g.h}, không phải 9:16`, why: 'Video không dọc 9:16 sẽ có viền đen hoặc bị cắt trên TikTok và Reels.', fix: 'Xuất lại ở 1080×1920.' });
     else if (g.h < 1280) box.add('res', { sev: 'tip', name: `Độ phân giải thấp (${g.w}×${g.h})`, why: 'Video dưới 720p nhìn mờ trên điện thoại.', fix: 'Xuất ở 1080×1920.' });
-    if (g.dur > 60) box.add('dur', { sev: 'tip', name: `Video dài ${fmtTime(g.dur)}`, why: 'Guideline campaign: video sản phẩm 7–15s, video kiến thức tối đa 60s.', fix: 'Cắt gọn hoặc chia thành series.' });
+    if (g.dur > 60) box.add('dur', { sev: 'tip', name: `Video dài ${fmtTime(g.dur)}`, why: 'Video ngắn giữ chân người xem tốt hơn: video sản phẩm 7–15s, video kiến thức tối đa 60s.', fix: 'Cắt gọn hoặc chia thành series.' });
   }
   const seen = new Set();
   for (const l of R.ocr) {
@@ -227,7 +227,7 @@ function finishVideo(R) {
   const cap = $('vCaption').value;
   for (const h of scan(cap)) box.add(h.rule.id, h.rule, { quote: { where: 'Caption', text: cap.slice(h.start, h.end) } });
   const tags = (cap.match(/#[\p{L}\p{N}_]+/gu) || []).length;
-  if (tags > 5) box.add('tags', { sev: 'tip', name: `Caption có ${tags} hashtag`, why: 'Nên giữ 3–5 hashtag liên quan, nhiều hơn dễ trông như spam.', fix: '#GiaiMaLanDa #SenvieLab + 1–3 hashtag chủ đề.' });
+  if (tags > 5) box.add('tags', { sev: 'tip', name: `Caption có ${tags} hashtag`, why: 'Nên giữ 3–5 hashtag liên quan, nhiều hơn dễ trông như spam.', fix: '1 hashtag campaign, 1 hashtag thương hiệu, 1–3 hashtag chủ đề.' });
   for (const e of R.errors) box.add('err-' + e, { sev: 'tip', name: 'Một bước soát bị lỗi', why: e + '. Kết quả phần này chưa đầy đủ, hãy kiểm tra thủ công.' });
   checklistIssues(box);
 
@@ -323,7 +323,7 @@ async function checkDesign(img) {
   const cover = colored ? Math.round(matched / colored * 100) : 100;
   $('dCover').textContent = cover;
   const off = rows.filter((r) => !r.ok).map((r) => `${rgb2hex(r.rgb)} (${Math.round(r.share * 100)}%)`);
-  if (cover < 40) box.add('pal', { sev: 'warn', name: `Chỉ ${cover}% màu nằm trong palette`, why: `Các màu lệch: ${off.join(', ')}. Ảnh không ăn khớp với bộ màu campaign.`, fix: 'Đổi các mảng màu lớn sang màu primary của phase.' });
+  if (cover < 40) box.add('pal', { sev: 'warn', name: `Chỉ ${cover}% màu nằm trong palette`, why: `Các màu lệch: ${off.join(', ')}. Ảnh không ăn khớp với palette trong guideline.`, fix: 'Đổi các mảng màu lớn sang màu primary của phase.' });
   else if (cover < 70 || rows.some((r) => !r.ok && r.share >= 0.1)) box.add('pal', { sev: 'tip', name: `${cover}% màu nằm trong palette, có mảng màu lớn lệch`, why: `Các màu lệch: ${off.join(', ')}.`, fix: 'Kiểm tra lại các mảng màu này, ảnh chụp người thật có thể lệch do màu da.' });
   set('pal', 'done', `${cover}% khớp`);
 

@@ -21,7 +21,7 @@ export const RULES = [
   { id: 'authority', sev: 'block', name: 'Mượn danh chuyên gia',
     terms: ['bác sĩ khuyên dùng', 'bác sĩ chứng nhận', 'được bác sĩ', 'bộ y tế chứng nhận', 'chuyên gia da liễu khuyên'],
     why: 'Dùng danh nghĩa bác sĩ, cơ quan y tế để quảng cáo mỹ phẩm là nội dung bị cấm nếu không có xác nhận hợp lệ.',
-    fix: '“Nội dung được chuyên gia của SenvieLab duyệt” nếu có chuyên gia thật đứng tên.', src: SRC.nd342 },
+    fix: '“Nội dung được chuyên gia của nhãn hàng duyệt” nếu có chuyên gia thật đứng tên.', src: SRC.nd342 },
   { id: 'superlative', sev: 'warn', name: 'So sánh tuyệt đối',
     terms: ['tốt nhất', 'số 1', 'số một', 'duy nhất', 'an toàn tuyệt đối', 'không tác dụng phụ', 'không gây kích ứng', 'hoàn tiền nếu không hiệu quả'],
     why: 'Từ “nhất”, “duy nhất”, “tuyệt đối” cần tài liệu chứng minh. Không có thì dễ bị coi là quảng cáo sai sự thật.',
@@ -36,7 +36,7 @@ export const RULES = [
     fix: 'Cắt đoạn đó hoặc chèn tiếng bíp và che chữ.', src: SRC.cg },
   { id: 'rude', sev: 'warn', name: 'Từ ngữ thô hoặc xúc phạm nhẹ',
     terms: ['đếch', 'vãi', 'vãi chưởng', 'mất dạy', 'khốn nạn', 'chết tiệt', 'ngu như bò', 'đồ ngu', 'thằng ngu', 'con ngu', 'câm mồm', 'cút', 'láo toét'],
-    why: 'Từ thô làm sai tone “nhẹ nhàng, không phán xét” của SenvieLab và có thể bị xếp vào quấy rối, bắt nạt.',
+    why: 'Từ thô làm sai tone nhẹ nhàng, không phán xét mà nội dung chăm da cần và có thể bị xếp vào quấy rối, bắt nạt.',
     fix: 'Đổi sang cách nói nhẹ hơn, hoặc bỏ.', src: SRC.cg },
   { id: 'brand', sev: 'warn', name: 'Xuất hiện thương hiệu khác',
     terms: ['la roche-posay', 'la roche posay', 'cerave', 'cetaphil', 'bioderma', 'some by mi', 'innisfree', 'the ordinary', 'garnier', 'senka', 'hada labo', 'neutrogena', 'eucerin', 'vichy', 'avène', 'avene', 'cocoon', 'klairs', "paula's choice", 'obagi', 'skin1004', 'anessa', 'sunplay', 'bioré', 'biore', 'nivea', "pond's", 'olay', "l'oréal", 'loreal', 'maybelline', "kiehl's", 'clinique', 'estée lauder', 'dior', 'chanel', 'gucci', 'louis vuitton', 'nike', 'adidas', 'coca-cola', 'pepsi', 'starbucks', 'highlands coffee', 'phúc long', 'shopee', 'lazada', 'tiki', 'tiktok shop', 'hasaki', 'guardian', 'watsons'],
@@ -53,7 +53,7 @@ export const RULES = [
   { id: 'contact', sev: 'tip', name: 'Kéo người xem ra ngoài TikTok',
     terms: ['zalo', 'inbox shop', 'ib shop', /(?:\+84|0)\d{9}/],
     why: 'Số điện thoại, Zalo có thể làm lộ thông tin cá nhân. Theo kinh nghiệm của người làm nội dung (TikTok chưa công bố chính thức), video kéo người xem ra ngoài thường được đề xuất ít hơn.',
-    fix: 'Dẫn về box chat SenvieClub hoặc link trong bio.', src: SRC.fyf },
+    fix: 'Dẫn về tin nhắn của kênh hoặc link trong bio.', src: SRC.fyf },
   { id: 'commercial', sev: 'tip', name: 'Có yếu tố quảng bá',
     terms: ['mua ngay', 'giảm giá', 'mã giảm giá', 'freeship', 'link bio', 'đặt hàng', 'sale', 'voucher'],
     why: 'Video quảng bá sản phẩm hoặc thương hiệu phải bật cài đặt “Nội dung thương mại”.',
@@ -97,5 +97,4 @@ export function scan(text) {
   console.assert(ids('đm vcl thật').filter((i) => i === 'profanity').length === 2, 'profanity acronyms');
   console.assert(!ids('đeo kính, dmca').includes('profanity'), 'no profanity false hit');
   console.assert(ids('Dùng thử La Roche-Posay').includes('brand'), 'brand');
-  console.assert(!ids('SenvieLab').includes('brand'), 'own brand ok');
 }
