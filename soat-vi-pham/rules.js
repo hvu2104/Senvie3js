@@ -1,4 +1,4 @@
-// Text rules shared by video (OCR, speech) and design checks. Same rule set as Tools/soat-vi-pham-tiktok.html.
+// Text rules shared by video (OCR, speech) and design checks. Tools/soat-vi-pham-tiktok.html has an older subset (no profanity, brands).
 export const SRC = {
   cg: 'https://www.tiktok.com/safety/vi-VN/policies-and-engagement/overview',
   fyf: 'https://www.tiktok.com/safety/vi-VN/policies-and-engagement/fyf-standards',
@@ -30,6 +30,18 @@ export const RULES = [
     terms: ['da xấu', 'da hỏng', 'mặt mụn', 'xấu xí', 'mặt rỗ', 'ghê tởm', 'kinh tởm', 'đen nhẻm', 'béo ú', 'mập ú'],
     why: 'Nhận xét hạ thấp ngoại hình có thể bị xếp vào quấy rối hoặc hình ảnh cơ thể có hại, dễ bị hạn chế đề xuất.',
     fix: '“da đang thay đổi”, “da đang cần được chăm”, “những ngày da hơi dỗi”.', src: SRC.cg },
+  { id: 'profanity', sev: 'block', name: 'Từ ngữ tục tĩu, chửi thề',
+    terms: ['địt', 'đụ', 'đéo', 'lồn', 'buồi', 'cặc', 'đĩ', 'đmm', 'đcm', 'dcm', 'đm', 'dm', 'dmm', 'vcl', 'vkl', 'vl', 'clgt', 'cmm', 'cmn', 'cc', 'đỉ mẹ', 'con mẹ mày', 'mẹ mày', 'đụ má', 'địt mẹ', 'dit me', 'du ma', 'vãi lồn', 'vãi cả lồn', 'óc chó', 'đồ chó', 'thằng chó', 'con chó cái', 'súc vật'],
+    why: 'Ngôn từ tục tĩu, chửi thề, xúc phạm bị TikTok hạn chế đề xuất hoặc gỡ, nhất là với nội dung hướng tới người dưới 18 tuổi.',
+    fix: 'Cắt đoạn đó hoặc chèn tiếng bíp và che chữ.', src: SRC.cg },
+  { id: 'rude', sev: 'warn', name: 'Từ ngữ thô hoặc xúc phạm nhẹ',
+    terms: ['đếch', 'vãi', 'vãi chưởng', 'mất dạy', 'khốn nạn', 'chết tiệt', 'ngu như bò', 'đồ ngu', 'thằng ngu', 'con ngu', 'câm mồm', 'cút', 'láo toét'],
+    why: 'Từ thô làm sai tone “nhẹ nhàng, không phán xét” của SenvieLab và có thể bị xếp vào quấy rối, bắt nạt.',
+    fix: 'Đổi sang cách nói nhẹ hơn, hoặc bỏ.', src: SRC.cg },
+  { id: 'brand', sev: 'warn', name: 'Xuất hiện thương hiệu khác',
+    terms: ['la roche-posay', 'la roche posay', 'cerave', 'cetaphil', 'bioderma', 'some by mi', 'innisfree', 'the ordinary', 'garnier', 'senka', 'hada labo', 'neutrogena', 'eucerin', 'vichy', 'avène', 'avene', 'cocoon', 'klairs', "paula's choice", 'obagi', 'skin1004', 'anessa', 'sunplay', 'bioré', 'biore', 'nivea', "pond's", 'olay', "l'oréal", 'loreal', 'maybelline', "kiehl's", 'clinique', 'estée lauder', 'dior', 'chanel', 'gucci', 'louis vuitton', 'nike', 'adidas', 'coca-cola', 'pepsi', 'starbucks', 'highlands coffee', 'phúc long', 'shopee', 'lazada', 'tiki', 'tiktok shop', 'hasaki', 'guardian', 'watsons'],
+    why: 'Tên hoặc logo thương hiệu khác xuất hiện mà không có thoả thuận có thể vi phạm quyền sở hữu trí tuệ, quy định quảng cáo so sánh, và bị coi là quảng cáo không công bố.',
+    fix: 'Che logo, bỏ tên thương hiệu khỏi chữ và lời thoại. Nếu là đối tác có hợp đồng thì bỏ qua và bật nhãn nội dung thương mại.', src: SRC.cg },
   { id: 'diet', sev: 'block', name: 'Giảm cân nguy hiểm',
     terms: ['giảm cân cấp tốc', 'nhịn ăn', 'thải độc', 'detox cấp tốc'],
     why: 'TikTok không cho phép cổ xúy phương pháp giảm cân nguy hiểm, đặc biệt với người xem tuổi teen.',
@@ -82,4 +94,8 @@ export function scan(text) {
   console.assert(ids('chỉ sau 7 ngày').includes('promise'), 'time promise');
   console.assert(!ids('sales').includes('commercial'), 'no partial word match');
   console.assert(scan('da xấu xí').length === 1, 'overlap collapsed');
+  console.assert(ids('đm vcl thật').filter((i) => i === 'profanity').length === 2, 'profanity acronyms');
+  console.assert(!ids('đeo kính, dmca').includes('profanity'), 'no profanity false hit');
+  console.assert(ids('Dùng thử La Roche-Posay').includes('brand'), 'brand');
+  console.assert(!ids('SenvieLab').includes('brand'), 'own brand ok');
 }

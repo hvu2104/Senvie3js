@@ -93,6 +93,9 @@ const RISKS = [
   { id: 'medical', p: 'medicine pills, a syringe or a doctor in a hospital', name: 'Hình ảnh thuốc hoặc bối cảnh y tế', why: 'Hình ảnh thuốc, bệnh viện làm mỹ phẩm trông như thuốc chữa bệnh.', fix: 'Đổi sang bối cảnh phòng tắm, phòng ngủ.', src: SRC.ads },
 ];
 const NEUTRAL = ['a person applying skincare at home', 'a skincare product bottle on a table', 'a person talking to the camera', 'a cute 3d cartoon character', 'a bedroom or bathroom interior', 'text on a colorful background', 'friends smiling together', 'a person washing their face at a sink', 'an exhibition with pastel decorations'];
+// logos CLIP recognises reliably without training; cosmetics brands are caught by OCR on the packaging instead
+const LOGOS = ['Nike', 'Adidas', 'Apple', 'Samsung', 'Coca-Cola', 'Pepsi', 'Starbucks', "McDonald's", 'KFC', 'Chanel', 'Louis Vuitton', 'Gucci', 'Dior', "L'Oréal", 'Nivea', 'Shopee', 'Lazada', 'Vinamilk'];
+const NO_LOGO = ['a photo with no brand logo', 'a plain unbranded product', 'a person without any logo on their clothes', 'a cute 3d cartoon character', 'text on a plain background'];
 const WATERMARK = /\b(veo|gemini|tiktok|capcut|kling|runway|seedance|hailuo|pika|sora)\b|@[\w.]{3,}/i;
 
 let vFileObj = null, lastVideo = null, vFilter = 'all';
@@ -181,13 +184,16 @@ $('vRun').addEventListener('click', async () => {
       try {
         const m = await clip(progressNote(set, 'clip', 'Tải model'));
         const labels = [...RISKS.map((r) => r.p), ...NEUTRAL];
-        const te = await m.texts(labels);
+        const te = await m.texts(labels), tl = await m.texts([...LOGOS.map((b) => `a photo showing the ${b} logo`), ...NO_LOGO]);
         set('clip', 'run', 'Đang xem khung hình…');
         const ie = await m.images(g.frames.map((f) => f.img));
+        const softmax = (v, t) => { const l = t.map((x) => 100 * cos(v, x)), mx = Math.max(...l), ex = l.map((y) => Math.exp(y - mx)), s = ex.reduce((a, b) => a + b, 0); return ex.map((x) => x / s); };
+        const best = (p) => p.indexOf(Math.max(...p));
         ie.forEach((v, i) => {
-          const logits = te.map((t) => 100 * cos(v, t)), mx = Math.max(...logits), ex = logits.map((l) => Math.exp(l - mx)), sum = ex.reduce((a, b) => a + b, 0);
-          const probs = ex.map((x) => x / sum), top = probs.indexOf(Math.max(...probs));
+          const probs = softmax(v, te), top = best(probs);
           if (top < RISKS.length && probs[top] >= 0.4) R.clipHits.push({ risk: RISKS[top], p: probs[top], frame: g.frames[i] });
+          const lp = softmax(v, tl), lt = best(lp);
+          if (lt < LOGOS.length && lp[lt] >= 0.5) R.clipHits.push({ risk: { id: 'logo-' + LOGOS[lt], name: `Có thể có logo ${LOGOS[lt]}`, why: 'Logo thương hiệu khác xuất hiện mà không có thoả thuận có thể vi phạm quyền sở hữu trí tuệ và bị coi là quảng cáo không công bố.', fix: 'Che hoặc làm mờ logo. Nếu là đối tác có hợp đồng thì bỏ qua và bật nhãn nội dung thương mại.', src: SRC.cg }, p: lp[lt], frame: g.frames[i] });
         });
         set('clip', 'done', R.clipHits.length ? `${R.clipHits.length} khung đáng ngờ` : 'Không thấy');
       } catch (e) { set('clip', 'err', e.message); R.errors.push('Hình ảnh: ' + e.message); }
